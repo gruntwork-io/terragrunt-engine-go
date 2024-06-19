@@ -72,6 +72,12 @@ jobs:
           command: |
             make tools
       - run:
+          name: Check generated files
+          command: |
+            go mod tidy
+            make protoc
+            git diff --quiet || (echo "Changes detected, failing the job" && exit 1)
+      - run:
           name: Run lint
           command: |
             make lint
