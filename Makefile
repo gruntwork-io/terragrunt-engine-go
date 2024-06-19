@@ -15,4 +15,7 @@ protoc: $(shell find . -name '*.proto')
 	protoc --go_out=. --go_opt=paths=source_relative engine/engine.proto
 	protoc --go-grpc_out=. --go-grpc_opt=paths=source_relative engine/engine.proto
 
+pre-commit:
+	pre-commit run --all-files
+
 .PHONY: default lint protoc test tools

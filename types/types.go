@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
