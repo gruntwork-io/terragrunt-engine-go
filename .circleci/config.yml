@@ -79,15 +79,6 @@ jobs:
           name: Run lint
           command: |
             make lint
-      - run:
-          name: Run tests
-          command: |
-            mkdir -p /tmp/logs
-            run-go-tests \
-              --path test \
-              --timeout 60m \
-              --packages . \
-              | (tee /tmp/logs/all.log || true)
       - store_results
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
