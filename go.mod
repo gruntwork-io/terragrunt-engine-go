@@ -1,6 +1,6 @@
 module github.com/gruntwork-io/terragrunt-engine-go
 
-go 1.21.8
+go 1.21
 
 require (
 	github.com/hashicorp/go-plugin v1.6.1

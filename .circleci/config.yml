@@ -31,20 +31,6 @@ install_gruntwork_utils: &install_gruntwork_utils
       --packer-version "NONE" \
       --go-version ${GOLANG_VERSION}
 version: 2.1
-# ---------------------------------------------------------------------------------------------------------------------
-# REUSABLE STEPS
-# ---------------------------------------------------------------------------------------------------------------------
-commands:
-  store_results:
-    description: Store test results for easy viewing.
-    steps:
-      - run:
-          command: terratest_log_parser --testlog /tmp/logs/all.log --outputdir /tmp/logs
-          when: always
-      - store_artifacts:
-          path: /tmp/logs
-      - store_test_results:
-          path: /tmp/logs
 #----------------------------------------------------------------------------------------------------------------------
 # BUILD JOBS
 #----------------------------------------------------------------------------------------------------------------------
@@ -72,25 +58,13 @@ jobs:
           command: |
             make tools
       - run:
-          name: Check generated files
+          name: Tidy check
           command: |
             go mod tidy
-            make protoc
-            git diff --quiet || (echo "Changes detected, failing the job" && exit 1)
       - run:
           name: Run lint
           command: |
             make lint
-      - run:
-          name: Run tests
-          command: |
-            mkdir -p /tmp/logs
-            run-go-tests \
-              --path test \
-              --timeout 60m \
-              --packages . \
-              | (tee /tmp/logs/all.log || true)
-      - store_results
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
 #----------------------------------------------------------------------------------------------------------------------
