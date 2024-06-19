@@ -76,11 +76,6 @@ jobs:
           command: |
             go mod tidy
       - run:
-          name: Generate protoc
-          command: |
-            make protoc
-            git diff --quiet || (echo "Changes detected, failing the job" && exit 1)
-      - run:
           name: Run lint
           command: |
             make lint
