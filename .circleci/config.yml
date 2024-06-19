@@ -76,6 +76,8 @@ jobs:
           command: |
             go mod tidy
             make protoc
+            git status
+            git diff
             git diff --quiet || (echo "Changes detected, failing the job" && exit 1)
       - run:
           name: Run lint
