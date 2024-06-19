@@ -1,4 +1,4 @@
-package terragrunt_engine_go
+package types
 
 import (
 	"context"
