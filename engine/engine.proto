@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package engine;
+import "google/protobuf/any.proto";
 option go_package = "./engine";
 
 service CommandExecutor {
@@ -10,7 +11,7 @@ service CommandExecutor {
 }
 
 message InitRequest {
-  map<string, string> meta = 1;
+  map<string, google.protobuf.Any> meta = 1;
   string working_dir = 2;
 }
 
@@ -21,7 +22,7 @@ message InitResponse {
 }
 
 message ShutdownRequest {
-  map<string, string> meta = 1;
+  map<string, google.protobuf.Any> meta = 1;
   string working_dir = 2;
 }
 
@@ -32,7 +33,7 @@ message ShutdownResponse {
 }
 
 message RunRequest {
-  map<string, string> meta = 1;
+  map<string, google.protobuf.Any> meta = 1;
   string working_dir = 2;
   string command = 3;
   repeated string args = 4;
