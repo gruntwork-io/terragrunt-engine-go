@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"log"
 	"net"
 	"testing"
 
@@ -13,24 +14,27 @@ import (
 	"google.golang.org/grpc"
 )
 
-type MockEngineServer struct {
+type TestEngineServer struct {
 	engine.UnimplementedEngineServer
 }
 
-func (m *MockEngineServer) Init(req *engine.InitRequest, stream engine.Engine_InitServer) error {
+func (m *TestEngineServer) Init(req *engine.InitRequest, stream engine.Engine_InitServer) error {
+	log.Printf("Init TestEngineServer")
 	return nil
 }
 
-func (m *MockEngineServer) Run(req *engine.RunRequest, stream engine.Engine_RunServer) error {
+func (m *TestEngineServer) Run(req *engine.RunRequest, stream engine.Engine_RunServer) error {
+	log.Printf("Run TestEngineServer")
 	return nil
 }
 
-func (m *MockEngineServer) Shutdown(req *engine.ShutdownRequest, stream engine.Engine_ShutdownServer) error {
+func (m *TestEngineServer) Shutdown(req *engine.ShutdownRequest, stream engine.Engine_ShutdownServer) error {
+	log.Printf("Shutdown TestEngineServer")
 	return nil
 }
 
 func TestGRPCServer(t *testing.T) {
-	mockServer := &MockEngineServer{}
+	mockServer := &TestEngineServer{}
 	grpcEngine := &types.TerragruntGRPCEngine{Impl: mockServer}
 	s := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
@@ -45,7 +49,7 @@ func TestGRPCServer(t *testing.T) {
 }
 
 func TestGRPCClient(t *testing.T) {
-	mockServer := &MockEngineServer{}
+	mockServer := &TestEngineServer{}
 	grpcEngine := &types.TerragruntGRPCEngine{Impl: mockServer}
 	server := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
