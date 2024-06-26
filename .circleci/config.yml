@@ -71,6 +71,7 @@ jobs:
             mkdir -p logs
             run-go-tests --packages "$(go list ./... | grep /test | tr '\n' ' ')" | tee logs/tests.log
             ls -lahrt
+            ls -lahrt logs/*
       - run:
           name: Terratest log parser
           command: |
