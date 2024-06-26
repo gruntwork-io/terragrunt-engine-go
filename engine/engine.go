@@ -2,6 +2,7 @@ package engine
 
 import (
 	"context"
+
 	"github.com/gruntwork-io/terragrunt-engine-go/proto"
 
 	"github.com/hashicorp/go-plugin"
