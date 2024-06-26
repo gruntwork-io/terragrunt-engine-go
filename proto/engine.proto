@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package engine;
+package proto;
 import "google/protobuf/any.proto";
-option go_package = "./engine";
+option go_package = "./proto";
 
 service Engine {
   // Initializes the engine with the provided request parameters.

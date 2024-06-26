@@ -1,23 +1,23 @@
-package types
+package engine
 
 import (
 	"context"
+	"github.com/gruntwork-io/terragrunt-engine-go/proto"
 
-	"github.com/gruntwork-io/terragrunt-engine-go/engine"
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
 )
 
 type TerragruntGRPCEngine struct {
 	plugin.Plugin
-	Impl engine.EngineServer
+	Impl proto.EngineServer
 }
 
 func (p *TerragruntGRPCEngine) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
-	engine.RegisterEngineServer(s, p.Impl)
+	proto.RegisterEngineServer(s, p.Impl)
 	return nil
 }
 
 func (p *TerragruntGRPCEngine) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	return engine.NewEngineClient(c), nil
+	return proto.NewEngineClient(c), nil
 }

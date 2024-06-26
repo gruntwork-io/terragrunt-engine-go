@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.4.0
 // - protoc             v3.12.4
-// source: engine/engine.proto
+// source: proto/engine.proto
 
-package engine
+package proto
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Engine_Init_FullMethodName     = "/engine.Engine/Init"
-	Engine_Run_FullMethodName      = "/engine.Engine/Run"
-	Engine_Shutdown_FullMethodName = "/engine.Engine/Shutdown"
+	Engine_Init_FullMethodName     = "/proto.Engine/Init"
+	Engine_Run_FullMethodName      = "/proto.Engine/Run"
+	Engine_Shutdown_FullMethodName = "/proto.Engine/Shutdown"
 )
 
 // EngineClient is the client API for Engine service.
@@ -255,7 +256,7 @@ func (x *engineShutdownServer) Send(m *ShutdownResponse) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Engine_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "engine.Engine",
+	ServiceName: "proto.Engine",
 	HandlerType: (*EngineServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -275,5 +276,5 @@ var Engine_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "engine/engine.proto",
+	Metadata: "proto/engine.proto",
 }
