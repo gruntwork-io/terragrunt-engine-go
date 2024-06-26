@@ -2,152 +2,82 @@ package test
 
 import (
 	"context"
-	"io"
 	"net"
 	"testing"
 
+	"github.com/gruntwork-io/terragrunt-engine-go/types"
+
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
+	"github.com/hashicorp/go-plugin"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-const bufSize = 1024 * 1024
-
-var listener *bufconn.Listener
-
-func init() {
-	listener = bufconn.Listen(bufSize)
+type MockEngineServer struct {
+	engine.UnimplementedEngineServer
 }
 
-func bufDialer(ctx context.Context, address string) (net.Conn, error) {
-	return listener.Dial()
+func (m *MockEngineServer) Init(req *engine.InitRequest, stream engine.Engine_InitServer) error {
+	return nil
 }
 
-type mockCommandExecutor struct {
-	engine.UnimplementedCommandExecutorServer
+func (m *MockEngineServer) Run(req *engine.RunRequest, stream engine.Engine_RunServer) error {
+	return nil
 }
 
-func (m *mockCommandExecutor) Init(req *engine.InitRequest, stream engine.CommandExecutor_InitServer) error {
-	response := &engine.InitResponse{
-		Stdout:     "Mock initialization successful",
-		Stderr:     "",
-		ResultCode: 0,
-	}
-	return stream.Send(response)
+func (m *MockEngineServer) Shutdown(req *engine.ShutdownRequest, stream engine.Engine_ShutdownServer) error {
+	return nil
 }
 
-func (m *mockCommandExecutor) Run(req *engine.RunRequest, stream engine.CommandExecutor_RunServer) error {
-	response := &engine.RunResponse{
-		Stdout:     "Mock command output",
-		Stderr:     "",
-		ResultCode: 0,
-	}
-	return stream.Send(response)
-}
-
-func (m *mockCommandExecutor) Shutdown(req *engine.ShutdownRequest, stream engine.CommandExecutor_ShutdownServer) error {
-	response := &engine.ShutdownResponse{
-		Stdout:     "Mock shutdown successful",
-		Stderr:     "",
-		ResultCode: 0,
-	}
-	return stream.Send(response)
-}
-
-func startTestServer() *grpc.Server {
+func TestGRPCServer(t *testing.T) {
+	mockServer := &MockEngineServer{}
+	grpcEngine := &types.TerragruntGRPCEngine{Impl: mockServer}
 	s := grpc.NewServer()
-	engine.RegisterCommandExecutorServer(s, &mockCommandExecutor{})
+	broker := &plugin.GRPCBroker{}
+
+	err := grpcEngine.GRPCServer(broker, s)
+	assert.Nil(t, err, "Expected GRPCServer to not return an error")
+
+	// Check if the service is registered correctly
+	serviceInfo := s.GetServiceInfo()
+	_, ok := serviceInfo["engine.Engine"]
+	assert.True(t, ok, "Expected engine.Engine service to be registered")
+}
+
+func TestGRPCClient(t *testing.T) {
+	mockServer := &MockEngineServer{}
+	grpcEngine := &types.TerragruntGRPCEngine{Impl: mockServer}
+	server := grpc.NewServer()
+	broker := &plugin.GRPCBroker{}
+
+	lis, err := net.Listen("tcp", ":0")
+	assert.Nil(t, err, "Expected no error starting listener")
+
 	go func() {
-		if err := s.Serve(listener); err != nil && err != grpc.ErrServerStopped {
-			panic(err)
-		}
+		err := grpcEngine.GRPCServer(broker, server)
+		assert.Nil(t, err, "Expected GRPCServer to not return an error")
+		err = server.Serve(lis)
+		assert.NoError(t, err)
 	}()
-	return s
-}
+	defer server.Stop()
 
-func createTestClient(ctx context.Context) (*grpc.ClientConn, error) {
 	// nolint:staticcheck
-	return grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithTransportCredentials(insecure.NewCredentials()))
-}
-
-func TestTerragruntGRPCEngine(t *testing.T) {
-	grpcServer := startTestServer()
-	defer grpcServer.Stop()
-
-	ctx := context.Background()
-	conn, err := createTestClient(ctx)
-	if err != nil {
-		t.Fatalf("Failed to dial bufnet: %v", err)
-	}
+	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
+	assert.Nil(t, err, "Expected no error dialing GRPC server")
 	defer func() {
-		if err := conn.Close(); err != nil {
-			t.Fatalf("Failed to close connection: %v", err)
-		}
+		err := conn.Close()
+		assert.NoError(t, err)
 	}()
 
-	client := engine.NewCommandExecutorClient(conn)
+	client, err := grpcEngine.GRPCClient(context.Background(), broker, conn)
+	assert.Nil(t, err, "Expected GRPCClient to not return an error")
+	assert.NotNil(t, client, "Expected client to be non-nil")
 
-	t.Run("Test Init", func(t *testing.T) {
-		stream, err := client.Init(context.Background(), &engine.InitRequest{})
-		if err != nil {
-			t.Fatalf("Failed to call Init: %v", err)
-		}
+	engineClient, ok := client.(engine.EngineClient)
+	assert.True(t, ok, "Expected client to be of type engine.EngineClient")
 
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				t.Fatalf("Failed to receive Init response: %v", err)
-			}
-			if resp.ResultCode != 0 {
-				t.Errorf("Expected result code 0, got %d", resp.ResultCode)
-			}
-		}
-	})
-
-	t.Run("Test Run", func(t *testing.T) {
-		stream, err := client.Run(context.Background(), &engine.RunRequest{
-			Command: "mock-command",
-			Args:    []string{"arg1", "arg2"},
-		})
-		if err != nil {
-			t.Fatalf("Failed to call Run: %v", err)
-		}
-
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				t.Fatalf("Failed to receive Run response: %v", err)
-			}
-			if resp.Stdout != "Mock command output" {
-				t.Errorf("Expected stdout 'Mock command output', got %s", resp.Stdout)
-			}
-		}
-	})
-
-	t.Run("Test Shutdown", func(t *testing.T) {
-		stream, err := client.Shutdown(context.Background(), &engine.ShutdownRequest{})
-		if err != nil {
-			t.Fatalf("Failed to call Shutdown: %v", err)
-		}
-
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				t.Fatalf("Failed to receive Shutdown response: %v", err)
-			}
-			if resp.ResultCode != 0 {
-				t.Errorf("Expected result code 0, got %d", resp.ResultCode)
-			}
-		}
-	})
+	// Test calling a method on the client
+	stream, err := engineClient.Init(context.Background(), &engine.InitRequest{})
+	assert.Nil(t, err, "Expected no error calling Init")
+	assert.NotNil(t, stream, "Expected Init stream to be non-nil")
 }

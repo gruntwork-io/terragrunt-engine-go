@@ -19,35 +19,41 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	CommandExecutor_Init_FullMethodName     = "/engine.CommandExecutor/Init"
-	CommandExecutor_Run_FullMethodName      = "/engine.CommandExecutor/Run"
-	CommandExecutor_Shutdown_FullMethodName = "/engine.CommandExecutor/Shutdown"
+	Engine_Init_FullMethodName     = "/engine.Engine/Init"
+	Engine_Run_FullMethodName      = "/engine.Engine/Run"
+	Engine_Shutdown_FullMethodName = "/engine.Engine/Shutdown"
 )
 
-// CommandExecutorClient is the client API for CommandExecutor service.
+// EngineClient is the client API for Engine service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CommandExecutorClient interface {
-	Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (CommandExecutor_InitClient, error)
-	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (CommandExecutor_RunClient, error)
-	Shutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (CommandExecutor_ShutdownClient, error)
+type EngineClient interface {
+	// Initializes the engine with the provided request parameters.
+	// Returns a stream of InitResponse messages.
+	Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (Engine_InitClient, error)
+	// Runs a command with the provided request parameters.
+	// Returns a stream of RunResponse messages.
+	Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (Engine_RunClient, error)
+	// Shuts down the engine with the provided request parameters.
+	// Returns a stream of ShutdownResponse messages.
+	Shutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (Engine_ShutdownClient, error)
 }
 
-type commandExecutorClient struct {
+type engineClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCommandExecutorClient(cc grpc.ClientConnInterface) CommandExecutorClient {
-	return &commandExecutorClient{cc}
+func NewEngineClient(cc grpc.ClientConnInterface) EngineClient {
+	return &engineClient{cc}
 }
 
-func (c *commandExecutorClient) Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (CommandExecutor_InitClient, error) {
+func (c *engineClient) Init(ctx context.Context, in *InitRequest, opts ...grpc.CallOption) (Engine_InitClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CommandExecutor_ServiceDesc.Streams[0], CommandExecutor_Init_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Engine_ServiceDesc.Streams[0], Engine_Init_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &commandExecutorInitClient{ClientStream: stream}
+	x := &engineInitClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -57,16 +63,16 @@ func (c *commandExecutorClient) Init(ctx context.Context, in *InitRequest, opts 
 	return x, nil
 }
 
-type CommandExecutor_InitClient interface {
+type Engine_InitClient interface {
 	Recv() (*InitResponse, error)
 	grpc.ClientStream
 }
 
-type commandExecutorInitClient struct {
+type engineInitClient struct {
 	grpc.ClientStream
 }
 
-func (x *commandExecutorInitClient) Recv() (*InitResponse, error) {
+func (x *engineInitClient) Recv() (*InitResponse, error) {
 	m := new(InitResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -74,13 +80,13 @@ func (x *commandExecutorInitClient) Recv() (*InitResponse, error) {
 	return m, nil
 }
 
-func (c *commandExecutorClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (CommandExecutor_RunClient, error) {
+func (c *engineClient) Run(ctx context.Context, in *RunRequest, opts ...grpc.CallOption) (Engine_RunClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CommandExecutor_ServiceDesc.Streams[1], CommandExecutor_Run_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Engine_ServiceDesc.Streams[1], Engine_Run_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &commandExecutorRunClient{ClientStream: stream}
+	x := &engineRunClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -90,16 +96,16 @@ func (c *commandExecutorClient) Run(ctx context.Context, in *RunRequest, opts ..
 	return x, nil
 }
 
-type CommandExecutor_RunClient interface {
+type Engine_RunClient interface {
 	Recv() (*RunResponse, error)
 	grpc.ClientStream
 }
 
-type commandExecutorRunClient struct {
+type engineRunClient struct {
 	grpc.ClientStream
 }
 
-func (x *commandExecutorRunClient) Recv() (*RunResponse, error) {
+func (x *engineRunClient) Recv() (*RunResponse, error) {
 	m := new(RunResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -107,13 +113,13 @@ func (x *commandExecutorRunClient) Recv() (*RunResponse, error) {
 	return m, nil
 }
 
-func (c *commandExecutorClient) Shutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (CommandExecutor_ShutdownClient, error) {
+func (c *engineClient) Shutdown(ctx context.Context, in *ShutdownRequest, opts ...grpc.CallOption) (Engine_ShutdownClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CommandExecutor_ServiceDesc.Streams[2], CommandExecutor_Shutdown_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Engine_ServiceDesc.Streams[2], Engine_Shutdown_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &commandExecutorShutdownClient{ClientStream: stream}
+	x := &engineShutdownClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -123,16 +129,16 @@ func (c *commandExecutorClient) Shutdown(ctx context.Context, in *ShutdownReques
 	return x, nil
 }
 
-type CommandExecutor_ShutdownClient interface {
+type Engine_ShutdownClient interface {
 	Recv() (*ShutdownResponse, error)
 	grpc.ClientStream
 }
 
-type commandExecutorShutdownClient struct {
+type engineShutdownClient struct {
 	grpc.ClientStream
 }
 
-func (x *commandExecutorShutdownClient) Recv() (*ShutdownResponse, error) {
+func (x *engineShutdownClient) Recv() (*ShutdownResponse, error) {
 	m := new(ShutdownResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -140,126 +146,132 @@ func (x *commandExecutorShutdownClient) Recv() (*ShutdownResponse, error) {
 	return m, nil
 }
 
-// CommandExecutorServer is the server API for CommandExecutor service.
-// All implementations must embed UnimplementedCommandExecutorServer
+// EngineServer is the server API for Engine service.
+// All implementations must embed UnimplementedEngineServer
 // for forward compatibility
-type CommandExecutorServer interface {
-	Init(*InitRequest, CommandExecutor_InitServer) error
-	Run(*RunRequest, CommandExecutor_RunServer) error
-	Shutdown(*ShutdownRequest, CommandExecutor_ShutdownServer) error
-	mustEmbedUnimplementedCommandExecutorServer()
+type EngineServer interface {
+	// Initializes the engine with the provided request parameters.
+	// Returns a stream of InitResponse messages.
+	Init(*InitRequest, Engine_InitServer) error
+	// Runs a command with the provided request parameters.
+	// Returns a stream of RunResponse messages.
+	Run(*RunRequest, Engine_RunServer) error
+	// Shuts down the engine with the provided request parameters.
+	// Returns a stream of ShutdownResponse messages.
+	Shutdown(*ShutdownRequest, Engine_ShutdownServer) error
+	mustEmbedUnimplementedEngineServer()
 }
 
-// UnimplementedCommandExecutorServer must be embedded to have forward compatible implementations.
-type UnimplementedCommandExecutorServer struct {
+// UnimplementedEngineServer must be embedded to have forward compatible implementations.
+type UnimplementedEngineServer struct {
 }
 
-func (UnimplementedCommandExecutorServer) Init(*InitRequest, CommandExecutor_InitServer) error {
+func (UnimplementedEngineServer) Init(*InitRequest, Engine_InitServer) error {
 	return status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (UnimplementedCommandExecutorServer) Run(*RunRequest, CommandExecutor_RunServer) error {
+func (UnimplementedEngineServer) Run(*RunRequest, Engine_RunServer) error {
 	return status.Errorf(codes.Unimplemented, "method Run not implemented")
 }
-func (UnimplementedCommandExecutorServer) Shutdown(*ShutdownRequest, CommandExecutor_ShutdownServer) error {
+func (UnimplementedEngineServer) Shutdown(*ShutdownRequest, Engine_ShutdownServer) error {
 	return status.Errorf(codes.Unimplemented, "method Shutdown not implemented")
 }
-func (UnimplementedCommandExecutorServer) mustEmbedUnimplementedCommandExecutorServer() {}
+func (UnimplementedEngineServer) mustEmbedUnimplementedEngineServer() {}
 
-// UnsafeCommandExecutorServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CommandExecutorServer will
+// UnsafeEngineServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to EngineServer will
 // result in compilation errors.
-type UnsafeCommandExecutorServer interface {
-	mustEmbedUnimplementedCommandExecutorServer()
+type UnsafeEngineServer interface {
+	mustEmbedUnimplementedEngineServer()
 }
 
-func RegisterCommandExecutorServer(s grpc.ServiceRegistrar, srv CommandExecutorServer) {
-	s.RegisterService(&CommandExecutor_ServiceDesc, srv)
+func RegisterEngineServer(s grpc.ServiceRegistrar, srv EngineServer) {
+	s.RegisterService(&Engine_ServiceDesc, srv)
 }
 
-func _CommandExecutor_Init_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Engine_Init_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(InitRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CommandExecutorServer).Init(m, &commandExecutorInitServer{ServerStream: stream})
+	return srv.(EngineServer).Init(m, &engineInitServer{ServerStream: stream})
 }
 
-type CommandExecutor_InitServer interface {
+type Engine_InitServer interface {
 	Send(*InitResponse) error
 	grpc.ServerStream
 }
 
-type commandExecutorInitServer struct {
+type engineInitServer struct {
 	grpc.ServerStream
 }
 
-func (x *commandExecutorInitServer) Send(m *InitResponse) error {
+func (x *engineInitServer) Send(m *InitResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _CommandExecutor_Run_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Engine_Run_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(RunRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CommandExecutorServer).Run(m, &commandExecutorRunServer{ServerStream: stream})
+	return srv.(EngineServer).Run(m, &engineRunServer{ServerStream: stream})
 }
 
-type CommandExecutor_RunServer interface {
+type Engine_RunServer interface {
 	Send(*RunResponse) error
 	grpc.ServerStream
 }
 
-type commandExecutorRunServer struct {
+type engineRunServer struct {
 	grpc.ServerStream
 }
 
-func (x *commandExecutorRunServer) Send(m *RunResponse) error {
+func (x *engineRunServer) Send(m *RunResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _CommandExecutor_Shutdown_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Engine_Shutdown_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(ShutdownRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CommandExecutorServer).Shutdown(m, &commandExecutorShutdownServer{ServerStream: stream})
+	return srv.(EngineServer).Shutdown(m, &engineShutdownServer{ServerStream: stream})
 }
 
-type CommandExecutor_ShutdownServer interface {
+type Engine_ShutdownServer interface {
 	Send(*ShutdownResponse) error
 	grpc.ServerStream
 }
 
-type commandExecutorShutdownServer struct {
+type engineShutdownServer struct {
 	grpc.ServerStream
 }
 
-func (x *commandExecutorShutdownServer) Send(m *ShutdownResponse) error {
+func (x *engineShutdownServer) Send(m *ShutdownResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// CommandExecutor_ServiceDesc is the grpc.ServiceDesc for CommandExecutor service.
+// Engine_ServiceDesc is the grpc.ServiceDesc for Engine service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CommandExecutor_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "engine.CommandExecutor",
-	HandlerType: (*CommandExecutorServer)(nil),
+var Engine_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "engine.Engine",
+	HandlerType: (*EngineServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Init",
-			Handler:       _CommandExecutor_Init_Handler,
+			Handler:       _Engine_Init_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "Run",
-			Handler:       _CommandExecutor_Run_Handler,
+			Handler:       _Engine_Run_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "Shutdown",
-			Handler:       _CommandExecutor_Shutdown_Handler,
+			Handler:       _Engine_Shutdown_Handler,
 			ServerStreams: true,
 		},
 	},

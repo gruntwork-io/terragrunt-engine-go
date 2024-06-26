@@ -10,14 +10,14 @@ import (
 
 type TerragruntGRPCEngine struct {
 	plugin.Plugin
-	Impl engine.CommandExecutorServer
+	Impl engine.EngineServer
 }
 
 func (p *TerragruntGRPCEngine) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
-	engine.RegisterCommandExecutorServer(s, p.Impl)
+	engine.RegisterEngineServer(s, p.Impl)
 	return nil
 }
 
 func (p *TerragruntGRPCEngine) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	return engine.NewCommandExecutorClient(c), nil
+	return engine.NewEngineClient(c), nil
 }

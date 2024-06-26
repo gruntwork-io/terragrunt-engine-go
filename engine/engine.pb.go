@@ -26,9 +26,12 @@ type InitRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Meta       map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	WorkingDir string               `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
-	EnvVars    map[string]string    `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Metadata information as a map of string keys to protobuf Any values.
+	Meta map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Working directory path.
+	WorkingDir string `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
+	// Environment variables as a map of string keys to string values.
+	EnvVars map[string]string `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *InitRequest) Reset() {
@@ -89,9 +92,12 @@ type InitResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Stdout     string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
-	Stderr     string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
-	ResultCode int32  `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
+	// Standard output from the initialization process.
+	Stdout string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
+	// Standard error output from the initialization process.
+	Stderr string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
+	// Result code of the initialization process.
+	ResultCode int32 `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
 }
 
 func (x *InitResponse) Reset() {
@@ -152,9 +158,12 @@ type ShutdownRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Meta       map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	WorkingDir string               `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
-	EnvVars    map[string]string    `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Metadata information as a map of string keys to protobuf Any values.
+	Meta map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Working directory path.
+	WorkingDir string `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
+	// Environment variables as a map of string keys to string values.
+	EnvVars map[string]string `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *ShutdownRequest) Reset() {
@@ -215,9 +224,12 @@ type ShutdownResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Stdout     string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
-	Stderr     string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
-	ResultCode int32  `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
+	// Standard output from the shutdown process.
+	Stdout string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
+	// Standard error output from the shutdown process.
+	Stderr string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
+	// Result code of the shutdown process.
+	ResultCode int32 `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
 }
 
 func (x *ShutdownResponse) Reset() {
@@ -278,12 +290,18 @@ type RunRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Meta              map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	WorkingDir        string               `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
-	Command           string               `protobuf:"bytes,3,opt,name=command,proto3" json:"command,omitempty"`
-	Args              []string             `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`
-	AllocatePseudoTty bool                 `protobuf:"varint,5,opt,name=allocate_pseudo_tty,json=allocatePseudoTty,proto3" json:"allocate_pseudo_tty,omitempty"`
-	EnvVars           map[string]string    `protobuf:"bytes,6,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Metadata information as a map of string keys to protobuf Any values.
+	Meta map[string]*any1.Any `protobuf:"bytes,1,rep,name=meta,proto3" json:"meta,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Working directory path.
+	WorkingDir string `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
+	// Command to be executed.
+	Command string `protobuf:"bytes,3,opt,name=command,proto3" json:"command,omitempty"`
+	// Arguments for the command.
+	Args []string `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`
+	// Flag indicating if a pseudo-terminal should be allocated.
+	AllocatePseudoTty bool `protobuf:"varint,5,opt,name=allocate_pseudo_tty,json=allocatePseudoTty,proto3" json:"allocate_pseudo_tty,omitempty"`
+	// Environment variables as a map of string keys to string values.
+	EnvVars map[string]string `protobuf:"bytes,6,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *RunRequest) Reset() {
@@ -365,9 +383,12 @@ type RunResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Stdout     string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
-	Stderr     string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
-	ResultCode int32  `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
+	// Standard output from the command execution.
+	Stdout string `protobuf:"bytes,1,opt,name=stdout,proto3" json:"stdout,omitempty"`
+	// Standard error output from the command execution.
+	Stderr string `protobuf:"bytes,2,opt,name=stderr,proto3" json:"stderr,omitempty"`
+	// Result code of the command execution.
+	ResultCode int32 `protobuf:"varint,3,opt,name=result_code,json=resultCode,proto3" json:"result_code,omitempty"`
 }
 
 func (x *RunResponse) Reset() {
@@ -510,20 +531,19 @@ var file_engine_engine_proto_rawDesc = []byte{
 	0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x06, 0x73, 0x74, 0x64, 0x65, 0x72, 0x72, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x73, 0x75,
 	0x6c, 0x74, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x72,
-	0x65, 0x73, 0x75, 0x6c, 0x74, 0x43, 0x6f, 0x64, 0x65, 0x32, 0xb9, 0x01, 0x0a, 0x0f, 0x43, 0x6f,
-	0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x45, 0x78, 0x65, 0x63, 0x75, 0x74, 0x6f, 0x72, 0x12, 0x33, 0x0a,
-	0x04, 0x49, 0x6e, 0x69, 0x74, 0x12, 0x13, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x49,
-	0x6e, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x65, 0x6e, 0x67,
-	0x69, 0x6e, 0x65, 0x2e, 0x49, 0x6e, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x30, 0x01, 0x12, 0x30, 0x0a, 0x03, 0x52, 0x75, 0x6e, 0x12, 0x12, 0x2e, 0x65, 0x6e, 0x67, 0x69,
-	0x6e, 0x65, 0x2e, 0x52, 0x75, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e,
-	0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x52, 0x75, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x30, 0x01, 0x12, 0x3f, 0x0a, 0x08, 0x53, 0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e,
-	0x12, 0x17, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x53, 0x68, 0x75, 0x74, 0x64, 0x6f,
-	0x77, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x65, 0x6e, 0x67, 0x69,
-	0x6e, 0x65, 0x2e, 0x53, 0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x0a, 0x5a, 0x08, 0x2e, 0x2f, 0x65, 0x6e, 0x67, 0x69, 0x6e,
-	0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x43, 0x6f, 0x64, 0x65, 0x32, 0xb0, 0x01, 0x0a, 0x06, 0x45, 0x6e,
+	0x67, 0x69, 0x6e, 0x65, 0x12, 0x33, 0x0a, 0x04, 0x49, 0x6e, 0x69, 0x74, 0x12, 0x13, 0x2e, 0x65,
+	0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x49, 0x6e, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x14, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x49, 0x6e, 0x69, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x30, 0x0a, 0x03, 0x52, 0x75, 0x6e,
+	0x12, 0x12, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x52, 0x75, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x52, 0x75,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x3f, 0x0a, 0x08, 0x53,
+	0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e, 0x12, 0x17, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65,
+	0x2e, 0x53, 0x68, 0x75, 0x74, 0x64, 0x6f, 0x77, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x18, 0x2e, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x2e, 0x53, 0x68, 0x75, 0x74, 0x64, 0x6f,
+	0x77, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x0a, 0x5a, 0x08,
+	0x2e, 0x2f, 0x65, 0x6e, 0x67, 0x69, 0x6e, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -564,12 +584,12 @@ var file_engine_engine_proto_depIdxs = []int32{
 	12, // 6: engine.InitRequest.MetaEntry.value:type_name -> google.protobuf.Any
 	12, // 7: engine.ShutdownRequest.MetaEntry.value:type_name -> google.protobuf.Any
 	12, // 8: engine.RunRequest.MetaEntry.value:type_name -> google.protobuf.Any
-	0,  // 9: engine.CommandExecutor.Init:input_type -> engine.InitRequest
-	4,  // 10: engine.CommandExecutor.Run:input_type -> engine.RunRequest
-	2,  // 11: engine.CommandExecutor.Shutdown:input_type -> engine.ShutdownRequest
-	1,  // 12: engine.CommandExecutor.Init:output_type -> engine.InitResponse
-	5,  // 13: engine.CommandExecutor.Run:output_type -> engine.RunResponse
-	3,  // 14: engine.CommandExecutor.Shutdown:output_type -> engine.ShutdownResponse
+	0,  // 9: engine.Engine.Init:input_type -> engine.InitRequest
+	4,  // 10: engine.Engine.Run:input_type -> engine.RunRequest
+	2,  // 11: engine.Engine.Shutdown:input_type -> engine.ShutdownRequest
+	1,  // 12: engine.Engine.Init:output_type -> engine.InitResponse
+	5,  // 13: engine.Engine.Run:output_type -> engine.RunResponse
+	3,  // 14: engine.Engine.Shutdown:output_type -> engine.ShutdownResponse
 	12, // [12:15] is the sub-list for method output_type
 	9,  // [9:12] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
