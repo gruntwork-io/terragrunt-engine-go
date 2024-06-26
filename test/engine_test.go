@@ -6,10 +6,9 @@ import (
 	"net"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -21,7 +20,7 @@ func init() {
 	listener = bufconn.Listen(bufSize)
 }
 
-func bufDialer(context.Context, string) (net.Conn, error) {
+func bufDialer(ctx context.Context, address string) (net.Conn, error) {
 	return listener.Dial()
 }
 
@@ -56,7 +55,7 @@ func (m *mockCommandExecutor) Shutdown(req *engine.ShutdownRequest, stream engin
 	return stream.Send(response)
 }
 
-func startTestServer() {
+func startTestServer() *grpc.Server {
 	s := grpc.NewServer()
 	engine.RegisterCommandExecutorServer(s, &mockCommandExecutor{})
 	go func() {
@@ -64,17 +63,27 @@ func startTestServer() {
 			panic(err)
 		}
 	}()
+	return s
+}
+
+func createTestClient(ctx context.Context) (*grpc.ClientConn, error) {
+	// nolint:staticcheck
+	return grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
 func TestTerragruntGRPCEngine(t *testing.T) {
-	startTestServer()
+	grpcServer := startTestServer()
+	defer grpcServer.Stop()
 
-	conn, err := grpc.DialContext(context.Background(), "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	ctx := context.Background()
+	conn, err := createTestClient(ctx)
 	if err != nil {
 		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 	defer func() {
-		assert.NoError(t, conn.Close())
+		if err := conn.Close(); err != nil {
+			t.Fatalf("Failed to close connection: %v", err)
+		}
 	}()
 
 	client := engine.NewCommandExecutorClient(conn)
