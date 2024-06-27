@@ -35,6 +35,7 @@ func (m *TestEngineServer) Shutdown(req *proto.ShutdownRequest, stream proto.Eng
 }
 
 func TestGRPCServer(t *testing.T) {
+	t.Parallel()
 	mockServer := &TestEngineServer{}
 	grpcEngine := &engine.TerragruntGRPCEngine{Impl: mockServer}
 	s := grpc.NewServer()
@@ -50,6 +51,7 @@ func TestGRPCServer(t *testing.T) {
 }
 
 func TestGRPCClient(t *testing.T) {
+	t.Parallel()
 	mockServer := &TestEngineServer{}
 	grpcEngine := &engine.TerragruntGRPCEngine{Impl: mockServer}
 	server := grpc.NewServer()
