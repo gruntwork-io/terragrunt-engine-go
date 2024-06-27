@@ -65,6 +65,21 @@ jobs:
           name: Run lint
           command: |
             make lint
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p logs
+            run-go-tests --packages "$(go list ./... | grep /test | tr '\n' ' ')" | tee logs/tests.log
+      - run:
+          name: Terratest log parser
+          command: |
+            gruntwork-install --binary-name 'terratest_log_parser' --repo 'https://github.com/gruntwork-io/terratest' --tag 'v0.30.0'
+            terratest_log_parser --testlog logs/tests.log --outputdir logs
+          when: always
+      - store_artifacts:
+          path: logs
+      - store_test_results:
+          path: logs
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
 #----------------------------------------------------------------------------------------------------------------------

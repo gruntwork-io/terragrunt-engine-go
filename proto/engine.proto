@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package proto;
+import "google/protobuf/any.proto";
+option go_package = "./proto";
+
+service Engine {
+  // Initializes the engine with the provided request parameters.
+  // Returns a stream of InitResponse messages.
+  rpc Init(InitRequest) returns (stream InitResponse);
+
+  // Runs a command with the provided request parameters.
+  // Returns a stream of RunResponse messages.
+  rpc Run(RunRequest) returns (stream RunResponse);
+
+  // Shuts down the engine with the provided request parameters.
+  // Returns a stream of ShutdownResponse messages.
+  rpc Shutdown(ShutdownRequest) returns (stream ShutdownResponse);
+}
+
+message InitRequest {
+  // Metadata information as a map of string keys to protobuf Any values.
+  map<string, google.protobuf.Any> meta = 1;
+
+  // Working directory path.
+  string working_dir = 2;
+
+  // Environment variables as a map of string keys to string values.
+  map<string, string> env_vars = 3;
+}
+
+message InitResponse {
+  // Standard output from the initialization process.
+  string stdout = 1;
+
+  // Standard error output from the initialization process.
+  string stderr = 2;
+
+  // Result code of the initialization process.
+  int32 result_code = 3;
+}
+
+message ShutdownRequest {
+  // Metadata information as a map of string keys to protobuf Any values.
+  map<string, google.protobuf.Any> meta = 1;
+
+  // Working directory path.
+  string working_dir = 2;
+
+  // Environment variables as a map of string keys to string values.
+  map<string, string> env_vars = 3;
+}
+
+message ShutdownResponse {
+  // Standard output from the shutdown process.
+  string stdout = 1;
+
+  // Standard error output from the shutdown process.
+  string stderr = 2;
+
+  // Result code of the shutdown process.
+  int32 result_code = 3;
+}
+
+message RunRequest {
+  // Metadata information as a map of string keys to protobuf Any values.
+  map<string, google.protobuf.Any> meta = 1;
+
+  // Working directory path.
+  string working_dir = 2;
+
+  // Command to be executed.
+  string command = 3;
+
+  // Arguments for the command.
+  repeated string args = 4;
+
+  // Flag indicating if a pseudo-terminal should be allocated.
+  bool allocate_pseudo_tty = 5;
+
+  // Environment variables as a map of string keys to string values.
+  map<string, string> env_vars = 6;
+}
+
+message RunResponse {
+  // Standard output from the command execution.
+  string stdout = 1;
+
+  // Standard error output from the command execution.
+  string stderr = 2;
+
+  // Result code of the command execution.
+  int32 result_code = 3;
+}
