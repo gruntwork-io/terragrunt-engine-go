@@ -19,3 +19,7 @@ Make commands:
 
 Example engine implementation can be found in the `test/engine_test.go` file.
 
+## License
+
+[Mozilla Public License v2.0](./LICENSE)
+
