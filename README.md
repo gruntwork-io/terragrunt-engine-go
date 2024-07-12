@@ -1,6 +1,6 @@
 # terragrunt-engine-go
 
-This repository contains the implementation of the Terragrunt Engine written in Go.
+This repository contains the implementation of the [Terragrunt](https://github.com/gruntwork-io/terragrunt) Engine written in Go.
 It uses gRPC for communication and Protocol Buffers for data serialization, ensuring high performance and scalability.
 
 Make commands:
@@ -15,9 +15,19 @@ Make commands:
 * `Run(RunRequest) returns (stream RunResponse)`: Runs a command.
 * `Shutdown(ShutdownRequest) returns (stream ShutdownResponse)`: Shuts down the engine.
 
-## Example engine implementation
+## Engines
 
-Example engine implementation can be found in the `test/engine_test.go` file.
+Impelmentations of the Terragrunt Engine include:
+
+- [terragrunt-engine-opentofu](https://github.com/gruntwork-io/terragrunt-engine-opentofu)
+
+## Example Engine Implementation
+
+Example engine implementation can be found in the [test/engine_test.go](./test/engine_test.go) file.
+
+## Contributions
+
+Contributions are welcome! Check out the [Contributing Guidelines](./CONTRIBUTING.md) for more information.
 
 ## License
 
