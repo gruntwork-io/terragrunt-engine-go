@@ -6,7 +6,7 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/hashicorp/go-plugin v1.6.1
 	github.com/stretchr/testify v1.2.2
-	google.golang.org/grpc v1.64.0
+	google.golang.org/grpc v1.64.1
 	google.golang.org/protobuf v1.34.2
 )
 
