@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+
+	"google.golang.org/grpc"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 
