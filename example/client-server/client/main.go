@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 	"time"
+
+	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
 	"github.com/hashicorp/go-plugin"
