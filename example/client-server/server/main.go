@@ -25,6 +25,7 @@ func (s *ShellServiceServer) RunCommand(ctx context.Context, req *pb.CommandRequ
 	for key, value := range req.EnvVars {
 		log.Infof("Env: %s=%s", key, value)
 	}
+	// run command in bash
 	cmd := exec.Command("bash", "-c", req.Command)
 
 	// Set the working directory if provided
