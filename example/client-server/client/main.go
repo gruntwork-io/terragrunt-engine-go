@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"google.golang.org/grpc/credentials/insecure"
+
 	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
@@ -30,15 +32,12 @@ type CommandOutput struct {
 func Run(command *Command) (*CommandOutput, error) {
 	connectAddress := util.GetEnv("CONNECT_ADDRESS", "localhost:50051")
 	log.Printf("Connecting to %s", connectAddress)
-	conn, err := grpc.Dial(connectAddress, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.NewClient(connectAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
-		err := conn.Close()
-		if err != nil {
-			log.Errorf("Error closing connection: %v", err)
-		}
+		_ = conn.Close()
 	}()
 
 	client := pb.NewShellServiceClient(conn)
