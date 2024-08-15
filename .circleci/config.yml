@@ -2,7 +2,7 @@ env: &env
   environment:
     GO111MODULE: auto
     GRUNTWORK_INSTALLER_VERSION: v0.0.36
-    MODULE_CI_VERSION: v0.54.0
+    MODULE_CI_VERSION: v0.57.0
     TERRATEST_LOG_PARSER_VERSION: v0.37.0
     GOLANG_VERSION: 1.21.1
 defaults: &defaults
@@ -80,6 +80,62 @@ jobs:
           path: logs
       - store_test_results:
           path: logs
+  release:
+    <<: *env
+    macos:
+      xcode: 15.3.0
+    resource_class: macos.m1.medium.gen1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - go/install:
+          version: "1.21.1"
+      - run:
+          name: Install sign-binary-helpers
+          command: |
+            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
+            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
+            gruntwork-install --module-name "sign-binary-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
+      - run:
+          name: Compile and sign the binaries
+          command: |
+            export AC_PASSWORD=${MACOS_AC_PASSWORD}
+            export AC_PROVIDER=${MACOS_AC_PROVIDER}
+
+            sign-binary --os mac --install-macos-sign-dependencies .gon_amd64.hcl
+            sign-binary --os mac .gon_arm64.hcl
+            echo "Done signing the binary"
+            mkdir -p bin
+            
+            # Replace the files in bin. These are the same file names generated from .gon_amd64.hcl and .gon_arm64.hcl
+            unzip terragrunt-iac-engine-opentofu_amd64.zip
+            mv terragrunt-iac-engine-opentofu_darwin_amd64 bin/
+
+            unzip terragrunt-iac-engine-opentofu_arm64.zip
+            mv terragrunt-iac-engine-opentofu_darwin_arm64 bin/
+      - run:
+          name: Install required packages
+          command: |
+            brew install coreutils gpg gh
+            # setting sign key
+            echo "${GW_ENGINE_GPG_KEY}" | base64 --decode > privatekey.asc
+            echo "${GW_ENGINE_GPG_KEY_PW}" | gpg --batch --yes --import privatekey.asc
+            KEY_ID=$(gpg --list-keys --with-colons | awk -F: '/^pub/{print $5}')
+            echo -e "trust\n5\ny\n" | gpg --command-fd 0 --edit-key $KEY_ID trust
+            mkdir -p ~/.gnupg
+            echo "default-key $KEY_ID" >> ~/.gnupg/gpg.conf
+      - run:
+          name: Package release files
+          command: |
+            export TAG="${CIRCLE_TAG}"
+            ./.circleci/sign-files.sh
+            ./.circleci/create-release.sh
+      - persist_to_workspace:
+          root: .
+          paths: [release]
+      - store_artifacts:
+          path: release
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
 #----------------------------------------------------------------------------------------------------------------------
@@ -106,3 +162,17 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - release:
+          requires:
+            - precommit
+#          filters:
+#            tags:
+#              only: /^.*-rc.*$/
+#            branches:
+#              ignore: /.*/
+          context:
+            - AWS__PHXDEVOPS__circle-ci-test
+            - GCP__automated-tests
+            - GITHUB__PAT__gruntwork-ci
+            - APPLE__OSX__code-signing
+            - TERRAGRUNT_ENGINE__circle-ci
