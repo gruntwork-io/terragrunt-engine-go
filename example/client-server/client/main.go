@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-
 	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
-
 	"time"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/engine"
@@ -35,7 +33,12 @@ func Run(command *Command) (*CommandOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			log.Errorf("Error closing connection: %v", err)
+		}
+	}()
 
 	client := pb.NewShellServiceClient(conn)
 
@@ -113,14 +116,18 @@ func (c *ClientServerEngine) Shutdown(req *tgengine.ShutdownRequest, stream tgen
 	return nil
 }
 
-// GRPCServer is used to register the TofuEngine with the gRPC server
-func (c *ClientServerEngine) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+// GRPCServer is used to register with the gRPC server
+//
+//nolint:unparam // result 0 (error) is always nil
+func (c *ClientServerEngine) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) error {
 	tgengine.RegisterEngineServer(s, c)
 	return nil
 }
 
-// GRPCClient is used to create a client that connects to the TofuEngine
-func (c *ClientServerEngine) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, client *grpc.ClientConn) (interface{}, error) {
+// GRPCClient is used to create a client that connects to the
+//
+//nolint:unparam // result 0 (error) is always nil
+func (c *ClientServerEngine) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, client *grpc.ClientConn) (interface{}, error) {
 	return tgengine.NewEngineClient(client), nil
 }
 

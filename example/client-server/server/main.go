@@ -15,12 +15,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const readBufferSize = 1024
+
 // ShellServiceServer implements the ShellService defined in the proto file.
 type ShellServiceServer struct {
 	pb.UnimplementedShellServiceServer
 }
 
-func (s *ShellServiceServer) RunCommand(ctx context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
+func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
 	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
 	for key, value := range req.EnvVars {
 		log.Infof("Env: %s=%s", key, value)
@@ -61,8 +63,12 @@ func (s *ShellServiceServer) RunCommand(ctx context.Context, req *pb.CommandRequ
 		return nil, err
 	}
 
-	// Close stdin as we're not sending any input
-	stdin.Close()
+	defer func() {
+		err := stdin.Close()
+		if err != nil {
+			log.Errorf("Error closing stdin: %v", err)
+		}
+	}()
 
 	// Read stdout and stderr
 	outputChan := make(chan string)
@@ -94,7 +100,7 @@ func (s *ShellServiceServer) RunCommand(ctx context.Context, req *pb.CommandRequ
 
 func readOutput(r io.Reader, ch chan<- string) {
 	var output string
-	buf := make([]byte, 1024)
+	buf := make([]byte, readBufferSize)
 	for {
 		n, err := r.Read(buf)
 		if n > 0 {
