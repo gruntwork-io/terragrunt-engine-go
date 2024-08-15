@@ -86,6 +86,30 @@ jobs:
           path: logs
       - store_test_results:
           path: logs
+  build:
+    resource_class: xlarge
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          <<: *install_gruntwork_utils
+      - run: |
+          go mod tidy
+          pushd .
+          cd example/client-server/client
+          build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+          popd
+          cd example/client-server/server
+          build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - example/client-server/client/bin
+            - example/client-server/server/bin
+      - store_artifacts:
+          path: example/client-server/client/bin
+      - store_artifacts:
+          path: example/client-server/server/bin
   release:
     <<: *env
     macos:
@@ -168,10 +192,13 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - release:
+      - build:
           requires:
             - precommit
-#          filters:
+      - release:
+          requires:
+            - build
+          #          filters:
 #            tags:
 #              only: /^.*-rc.*$/
 #            branches:
