@@ -73,7 +73,7 @@ func (c *ClientServerEngine) Init(req *tgengine.InitRequest, stream tgengine.Eng
 
 func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engine_RunServer) error {
 	log.Infof("Run client server plugin %v", req.WorkingDir)
-
+	log.Infof("Run client with meta %v", req.Meta)
 	iacCommand := util.GetEnv("IAC_COMMAND", "tofu")
 
 	// build run command
