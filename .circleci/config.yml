@@ -112,6 +112,7 @@ jobs:
           path: example/client-server/server/bin
 
   release:
+    <<: *env
     macos:
       xcode: 15.3.0
     resource_class: macos.m1.medium.gen1
