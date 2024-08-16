@@ -191,6 +191,12 @@ workflows:
       - build:
           requires:
             - precommit
+          context:
+            - AWS__PHXDEVOPS__circle-ci-test
+            - GCP__automated-tests
+            - GITHUB__PAT__gruntwork-ci
+            - APPLE__OSX__code-signing
+            - TERRAGRUNT_ENGINE__circle-ci
       - release:
           requires:
             - build
