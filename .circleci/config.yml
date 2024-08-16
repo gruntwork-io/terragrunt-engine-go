@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   win: circleci/windows@5.0
-  go: circleci/go@1.11
+  go: circleci/go@1.22
 
 env: &env
   environment:
@@ -20,6 +20,7 @@ machine:
   <<: *env
 
 defaults: &defaults
+  <<: *env
   docker:
     - image: 087285199408.dkr.ecr.us-east-1.amazonaws.com/circle-ci-test-image-base:go1.21.9-tf1.5-tg58.8-pck1.8-ci56.0
 
@@ -31,6 +32,7 @@ run_precommit: &run_precommit
   command: |
     pre-commit install
     pre-commit run --all-files
+
 install_gruntwork_utils: &install_gruntwork_utils
   name: install gruntwork utils
   command: |
@@ -38,6 +40,7 @@ install_gruntwork_utils: &install_gruntwork_utils
     gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
     gruntwork-install --module-name "git-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
     gruntwork-install --binary-name "terratest_log_parser" --repo "https://github.com/gruntwork-io/terratest" --tag "${TERRATEST_LOG_PARSER_VERSION}"
+    gruntwork-install --module-name "sign-binary-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
     configure-environment-for-gruntwork-module \
       --mise-version "NONE" \
       --terraform-version "NONE" \
@@ -50,7 +53,7 @@ install_gruntwork_utils: &install_gruntwork_utils
 #----------------------------------------------------------------------------------------------------------------------
 jobs:
   precommit:
-    <<: *env
+    <<: *defaults
     steps:
       - checkout
       # Fail the build if the pre-commit hooks don't pass. Note: if you run pre-commit install locally, these hooks will
@@ -117,7 +120,7 @@ jobs:
       - store_artifacts:
           path: example/client-server/server/bin
   release:
-    <<: *env
+    <<: *defaults
     macos:
       xcode: 15.3.0
     resource_class: macos.m1.medium.gen1
@@ -128,11 +131,7 @@ jobs:
       - go/install:
           version: "1.21.1"
       - run:
-          name: Install sign-binary-helpers
-          command: |
-            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
-            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
-            gruntwork-install --module-name "sign-binary-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
+          <<: *install_gruntwork_utils
       - run:
           name: Compile and sign the binaries
           command: |
