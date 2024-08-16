@@ -30,8 +30,11 @@ type CommandOutput struct {
 	ExitCode int32
 }
 
-func Run(command *Command) (*CommandOutput, error) {
+func Run(endpoint string, command *Command) (*CommandOutput, error) {
 	connectAddress := util.GetEnv("CONNECT_ADDRESS", "localhost:50051")
+	if endpoint != "" {
+		connectAddress = endpoint
+	}
 	log.Printf("Connecting to %s", connectAddress)
 	conn, err := grpc.NewClient(connectAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -88,6 +91,11 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 		return err
 	}
 
+	endpoint, err := engine.MetaString(req, "endpoint")
+	if err != nil {
+		return err
+	}
+
 	// build run command
 	command := iacCommand + ""
 	for _, value := range req.Args {
@@ -95,7 +103,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	}
 	req.EnvVars["TF_IN_AUTOMATION"] = "true"
 
-	output, err := Run(&Command{
+	output, err := Run(endpoint, &Command{
 		Command:    command,
 		WorkingDir: req.WorkingDir,
 		EnvVars:    req.EnvVars,
