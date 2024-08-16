@@ -18,6 +18,7 @@ import (
 )
 
 type Command struct {
+	Token      string
 	Command    string
 	WorkingDir string
 	EnvVars    map[string]string
@@ -49,6 +50,7 @@ func Run(command *Command) (*CommandOutput, error) {
 		Command:    command.Command,
 		WorkingDir: command.WorkingDir,
 		EnvVars:    command.EnvVars,
+		Token:      command.Token,
 	})
 	if err != nil {
 		return nil, err
@@ -81,6 +83,11 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	log.Infof("Run client meta: %v", req.Meta)
 	iacCommand := util.GetEnv("IAC_COMMAND", "tofu")
 
+	token, err := engine.MetaString(req, "token")
+	if err != nil {
+		return err
+	}
+
 	// build run command
 	command := iacCommand + ""
 	for _, value := range req.Args {
@@ -92,6 +99,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 		Command:    command,
 		WorkingDir: req.WorkingDir,
 		EnvVars:    req.EnvVars,
+		Token:      token,
 	})
 	if err != nil {
 		return err

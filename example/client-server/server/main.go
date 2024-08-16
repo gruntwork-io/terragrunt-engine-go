@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -9,9 +11,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
-
 	pb "github.com/gruntwork-io/terragrunt-engine-go/example/client-server/proto"
+	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,13 +21,17 @@ const readBufferSize = 1024
 // ShellServiceServer implements the ShellService defined in the proto file.
 type ShellServiceServer struct {
 	pb.UnimplementedShellServiceServer
+	Token string
 }
 
+// RunCommand validates the token and runs the command.
 func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
-	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
-	for key, value := range req.EnvVars {
-		log.Infof("Env: %s=%s", key, value)
+	if req.Token != s.Token {
+		log.Infof("Invalid token: %s, expected %s", req.Token, s.Token)
+		return nil, fmt.Errorf("invalid token")
 	}
+
+	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
 	// run command in bash
 	cmd := exec.Command("bash", "-c", req.Command)
 
@@ -111,14 +116,14 @@ func readOutput(r io.Reader, ch chan<- string) {
 }
 
 // Serve starts the gRPC server
-func Serve() {
+func Serve(token string) {
 	listenAddress := util.GetEnv("LISTEN_ADDRESS", ":50051")
 	listener, err := net.Listen("tcp", listenAddress)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{})
+	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{Token: token})
 	log.Println("Server is running on port " + listenAddress)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
@@ -126,5 +131,12 @@ func Serve() {
 }
 
 func main() {
-	Serve()
+	token := flag.String("token", "", "Token for authenticating requests")
+	flag.Parse()
+
+	if *token == "" {
+		log.Fatal("Token is required")
+	}
+
+	Serve(*token)
 }
