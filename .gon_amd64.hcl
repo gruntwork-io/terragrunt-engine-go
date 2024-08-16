@@ -1,7 +1,7 @@
 # See https://github.com/gruntwork-io/terraform-aws-ci/blob/main/modules/sign-binary-helpers/
 # for further instructions on how to sign the binary + submitting for notarization.
 
-source = ["./bin/terragrunt-iac-engine-opentofu_darwin_amd64"]
+source = ["./example/client-server/client/bin/terragrunt-iac-engine-client_darwin_amd64", "example/client-server/client/bin/terragrunt-iac-engine-server_darwin_amd64"]
 
 bundle_id = "io.gruntwork.app.terragrunt"
 
@@ -14,5 +14,5 @@ sign {
 }
 
 zip {
-  output_path = "terragrunt-iac-engine-opentofu_amd64.zip"
+  output_path = "terragrunt-iac-engine-client-server_amd64.zip"
 }
