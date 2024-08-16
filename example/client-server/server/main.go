@@ -131,12 +131,14 @@ func Serve(token string) {
 }
 
 func main() {
-	token := flag.String("token", "", "Token for authenticating requests")
-	flag.Parse()
-
-	if *token == "" {
-		log.Fatal("Token is required")
+	token := util.GetEnv("TOKEN", "")
+	if token == "" {
+		clitoken := flag.String("token", "", "Token for authenticating requests")
+		flag.Parse()
+		if *clitoken == "" {
+			log.Fatal("Token is required")
+		}
+		token = *clitoken
 	}
-
-	Serve(*token)
+	Serve(token)
 }
