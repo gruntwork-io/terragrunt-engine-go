@@ -196,9 +196,9 @@ workflows:
       - build:
           requires:
             - precommit
-#      - release:
-#          requires:
-#            - build
+      - release:
+          requires:
+            - build
           #          filters:
 #            tags:
 #              only: /^.*-rc.*$/
