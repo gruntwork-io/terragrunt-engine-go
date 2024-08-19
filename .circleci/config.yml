@@ -137,17 +137,21 @@ jobs:
             sign-binary --os mac --install-macos-sign-dependencies .gon_amd64.hcl
             sign-binary --os mac .gon_arm64.hcl
             echo "Done signing the binary"
-            mkdir -p bin
+            mkdir -p bin-server
+            mkdir -p bin-client
             # copy other binaries
-            cp -r example/client-server/client/bin/* bin/
-            cp -r example/client-server/server/bin/* bin/
-
+            cp -r example/client-server/server/bin/* bin-server/
+            cp -r example/client-server/client/bin/* bin-client/
+                        
+            # create separated directory for client and separated for server
+            
             # Replace the files in bin. These are the same file names generated from .gon_amd64.hcl and .gon_arm64.hcl
             unzip terragrunt-iac-engine-client-server_amd64.zip
             unzip terragrunt-iac-engine-client-server_arm64.zip
-            mv *_amd64 bin/
-            mv *_arm64 bin/
-            ls -lahrt ./bin
+            mv *-server_* bin-server/
+            mv *-client_* bin-client/
+            ls -lahrt ./bin-client
+            ls -lahrt ./bin-server
       - run:
           name: Install required packages
           command: |
