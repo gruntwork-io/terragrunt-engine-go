@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 	"time"
 
 	"google.golang.org/grpc/credentials/insecure"

@@ -3,7 +3,7 @@ module github.com/gruntwork-io/terragrunt-engine-go/example/client-server
 go 1.21
 
 require (
-	github.com/gruntwork-io/terragrunt-engine-go v0.0.3-rc2024081903
+	github.com/gruntwork-io/terragrunt-engine-go v0.0.3-rc2024081904
 	github.com/hashicorp/go-plugin v1.6.1
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.65.0
