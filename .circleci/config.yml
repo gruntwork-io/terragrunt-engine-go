@@ -138,13 +138,16 @@ jobs:
             sign-binary --os mac .gon_arm64.hcl
             echo "Done signing the binary"
             mkdir -p bin
+            # copy other binaries
+            cp -r example/client-server/client/bin/* bin/
+            cp -r example/client-server/server/bin/* bin/
 
             # Replace the files in bin. These are the same file names generated from .gon_amd64.hcl and .gon_arm64.hcl
             unzip terragrunt-iac-engine-client-server_amd64.zip
-            mv terragrunt-iac-engine-opentofu_darwin_amd64 bin/
-
             unzip terragrunt-iac-engine-client-server_arm64.zip
-            mv terragrunt-iac-engine-opentofu_darwin_arm64 bin/
+            mv *_amd64 bin/
+            mv *_arm64 bin/
+            ls -lahrt ./bin
       - run:
           name: Install required packages
           command: |
