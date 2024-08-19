@@ -3,10 +3,11 @@ package engine
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/gruntwork-io/terragrunt-engine-go/proto"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/structpb"
-	"strconv"
 )
 
 // Meta extract request.Meta to go map[string]interface{} struct.
