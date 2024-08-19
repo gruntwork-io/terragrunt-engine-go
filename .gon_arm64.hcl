@@ -1,7 +1,7 @@
 # See https://github.com/gruntwork-io/terraform-aws-ci/blob/main/modules/sign-binary-helpers/
 # for further instructions on how to sign the binary + submitting for notarization.
 
-source = ["./example/client-server/client/bin/terragrunt-iac-engine-client_darwin_arm64", "example/client-server/client/bin/terragrunt-iac-engine-server_darwin_arm64"]
+source = ["./example/client-server/client/bin/terragrunt-iac-engine-client_darwin_arm64", "example/client-server/server/bin/terragrunt-iac-engine-server_darwin_arm64"]
 
 bundle_id = "io.gruntwork.app.terragrunt"
 
