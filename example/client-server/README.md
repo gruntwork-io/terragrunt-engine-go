@@ -33,3 +33,6 @@ export TG_SERVER_TOKEN=secret-token
 
 terragrunt apply --auto-approve
 ```
+
+End to end example:
+[![asciicast](https://asciinema.org/a/672387.svg)](https://asciinema.org/a/672387)
