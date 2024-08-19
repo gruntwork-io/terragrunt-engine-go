@@ -1,0 +1,14 @@
+
+version: '3'
+services:
+  terragrunt-engine-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TOKEN: secret-token
+    volumes:
+      # Update path to allow tofu access from container to working directory
+      - $PWD:$PWD
+    ports:
+      - "0.0.0.0:50051:50051"
