@@ -206,6 +206,9 @@ workflows:
             tags:
               only: /^v.*/
       - build:
+          filters:
+            tags:
+              only: /^v.*/
           requires:
             - precommit
           context:
