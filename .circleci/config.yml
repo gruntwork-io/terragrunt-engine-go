@@ -169,7 +169,10 @@ jobs:
             export BIN=$(pwd)/bin-client
             export NAME="client"
             export TAG="${CIRCLE_TAG}"
+            export REPO_NAME="terragrunt-engine-go"
             ./.circleci/sign-files.sh
+            # copy server files to release
+            cp bin-server/* release/
             ./.circleci/create-release.sh
       - persist_to_workspace:
           root: .
