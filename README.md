@@ -17,9 +17,10 @@ Make commands:
 
 ## Engines
 
-Impelmentations of the Terragrunt Engine include:
+Implementations of the Terragrunt Engine include:
 
 - [terragrunt-engine-opentofu](https://github.com/gruntwork-io/terragrunt-engine-opentofu)
+- [terragrunt-engine-client-server](./engine/client-server)
 
 ## Example Engine Implementation
 
