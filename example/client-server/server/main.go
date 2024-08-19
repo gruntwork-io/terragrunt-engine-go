@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc"
 
 	pb "github.com/gruntwork-io/terragrunt-engine-go/example/client-server/proto"
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 	log "github.com/sirupsen/logrus"
 )
 
