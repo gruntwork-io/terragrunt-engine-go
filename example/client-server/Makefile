@@ -9,13 +9,13 @@ protoc: $(shell find ./example/client-server -name '*.proto')
 	protoc --go_out=. --go_opt=paths=source_relative proto/proto.proto
 	protoc --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/proto.proto
 
-build: 
+build:
 	set -xe ;\
 	cd client ;\
-	go build -o terragrunt-engine-client -ldflags "-extldflags '-static'" . ;\
+	go build -o ../terragrunt-engine-client -ldflags "-extldflags '-static'" . ;\
 	cd .. ;\
 	cd server ;\
-	go build -o terragrunt-engine-server -ldflags "-extldflags '-static'" .
+	go build -o ../terragrunt-engine-server -ldflags "-extldflags '-static'" .
 
 pre-commit:
 	pre-commit run --all-files

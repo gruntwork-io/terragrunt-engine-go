@@ -1,10 +1,10 @@
 # Example Engine Client - Server implementation
 
-To build locally the client and server, you can use the following commands in the repository root:
+To build locally the client and server, run make command:
 ```bash
-
-make examples
+make
 ```
+It will build client and server binaries.
 
 ## Example HCL Configuration
 
