@@ -4,11 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+
+	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
 
 	"google.golang.org/grpc"
 
