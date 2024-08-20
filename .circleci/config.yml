@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@5.0
   go: circleci/go@1.11
 
 env: &env
@@ -94,90 +93,13 @@ jobs:
       - run:
           <<: *install_gruntwork_utils
       - run: |
-          go mod tidy
-          pushd examples/client-server/client
-          build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
-          popd
-          pushd examples/client-server/server
-          build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
-      - persist_to_workspace:
-          root: .
-          paths:
-            - examples/client-server/client/bin
-            - examples/client-server/server/bin
+          cd examples/client-server
+          make
       - store_artifacts:
-          path: examples/client-server/client/bin
+          path: examples/client-server/terragrunt-engine-client
       - store_artifacts:
-          path: examples/client-server/server/bin
+          path: examples/client-server/terragrunt-engine-server
 
-  release:
-    <<: *env
-    macos:
-      xcode: 15.3.0
-    resource_class: macos.m1.medium.gen1
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - go/install:
-          version: "1.21.1"
-      - run:
-          name: Install sign-binary-helpers
-          command: |
-            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
-            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
-            gruntwork-install --module-name "sign-binary-helpers" --repo "https://github.com/gruntwork-io/terraform-aws-ci" --tag "${MODULE_CI_VERSION}"
-      - run:
-          name: Compile and sign the binaries
-          command: |
-            export AC_PASSWORD=${MACOS_AC_PASSWORD}
-            export AC_PROVIDER=${MACOS_AC_PROVIDER}
-
-            sign-binary --os mac --install-macos-sign-dependencies .gon_amd64.hcl
-            sign-binary --os mac .gon_arm64.hcl
-            echo "Done signing the binary"
-            mkdir -p bin-server
-            mkdir -p bin-client
-            # copy other binaries
-            cp -r examples/client-server/server/bin/* bin-server/
-            cp -r examples/client-server/client/bin/* bin-client/
-                        
-            # create separated directory for client and separated for server
-            
-            # Replace the files in bin. These are the same file names generated from .gon_amd64.hcl and .gon_arm64.hcl
-            unzip terragrunt-iac-engine-client-server_amd64.zip
-            unzip terragrunt-iac-engine-client-server_arm64.zip
-            mv *-server_* bin-server/
-            mv *-client_* bin-client/
-            ls -lahrt ./bin-client
-            ls -lahrt ./bin-server
-      - run:
-          name: Install required packages
-          command: |
-            brew install coreutils gpg gh
-            # setting sign key
-            echo "${GW_ENGINE_GPG_KEY}" | base64 --decode > privatekey.asc
-            echo "${GW_ENGINE_GPG_KEY_PW}" | gpg --batch --yes --import privatekey.asc
-            KEY_ID=$(gpg --list-keys --with-colons | awk -F: '/^pub/{print $5}')
-            echo -e "trust\n5\ny\n" | gpg --command-fd 0 --edit-key $KEY_ID trust
-            mkdir -p ~/.gnupg
-            echo "default-key $KEY_ID" >> ~/.gnupg/gpg.conf
-      - run:
-          name: Package release files
-          command: |
-            export BIN=$(pwd)/bin-client
-            export NAME="client"
-            export TAG="${CIRCLE_TAG}"
-            export REPO_NAME="terragrunt-engine-go"
-            ./.circleci/sign-files.sh
-            # copy server files to release
-            cp bin-server/* release/
-            ./.circleci/create-release.sh
-      - persist_to_workspace:
-          root: .
-          paths: [release]
-      - store_artifacts:
-          path: release
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
 #----------------------------------------------------------------------------------------------------------------------
@@ -210,20 +132,6 @@ workflows:
               only: /^v.*/
           requires:
             - precommit
-          context:
-            - AWS__PHXDEVOPS__circle-ci-test
-            - GCP__automated-tests
-            - GITHUB__PAT__gruntwork-ci
-            - APPLE__OSX__code-signing
-            - TERRAGRUNT_ENGINE__circle-ci
-      - release:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^.*-rc.*$/
-            branches:
-              ignore: /.*/
           context:
             - AWS__PHXDEVOPS__circle-ci-test
             - GCP__automated-tests

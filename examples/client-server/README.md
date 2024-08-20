@@ -17,7 +17,7 @@ Here is an example of how you can configure the IaC engine client in your Terrag
 ```hcl
 # terragrunt.hcl
 engine {
-  source = "https://github.com/gruntwork-io/terragrunt-engine-go/releases/download/v0.0.3-rc2024081902/terragrunt-iac-engine-client_rpc_v0.0.3_linux_amd64.zip"
+  source = "./terragrunt-iac-engine-client"
   meta = {
     # server endpoint
     endpoint = "127.0.0.1:50051"
