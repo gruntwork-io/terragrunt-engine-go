@@ -17,7 +17,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const readBufferSize = 1024
+const (
+	listenAddress        = "LISTEN_ADDRESS"
+	defaultListenAddress = ":50051"
+	tokenKey             = "token"
+	readBufferSize       = 1024
+)
 
 // ShellServiceServer implements the ShellService defined in the proto file.
 type ShellServiceServer struct {
@@ -118,21 +123,21 @@ func readOutput(r io.Reader, ch chan<- string) {
 
 // Serve starts the gRPC server
 func Serve(token string) {
-	listenAddress := util.GetEnv("LISTEN_ADDRESS", ":50051")
+	listenAddress := util.GetEnv(listenAddress, defaultListenAddress)
 	listener, err := net.Listen("tcp", listenAddress)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{Token: token})
-	log.Println("Server is running on port " + listenAddress)
+	log.Infof("Server is running on port " + listenAddress)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
 }
 
 func main() {
-	token := util.GetEnv("TOKEN", "")
+	token := util.GetEnv(tokenKey, "")
 	if token == "" {
 		clitoken := flag.String("token", "", "Token for authenticating requests")
 		flag.Parse()

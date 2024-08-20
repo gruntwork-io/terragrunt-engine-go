@@ -18,11 +18,11 @@ import (
 )
 
 const (
-	iacCommand     = "IAC_COMMAND"
-	iacCommandTofu = "tofu"
-	tokenMeta      = "token"
-	endpointMeta   = "endpoint"
-	tfAutoApprove  = "TF_IN_AUTOMATION"
+	iacCommand            = "IAC_COMMAND"
+	iacDefaultCommandTofu = "tofu"
+	tokenMeta             = "token"
+	endpointMeta          = "endpoint"
+	tfAutoApprove         = "TF_IN_AUTOMATION"
 )
 
 type Command struct {
@@ -43,7 +43,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 	if endpoint != "" {
 		connectAddress = endpoint
 	}
-	log.Printf("Connecting to %s", connectAddress)
+	log.Infof("Connecting to %s", connectAddress)
 	conn, err := grpc.NewClient(connectAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	log.Debugf("Run client args: %v", req.Args)
 	log.Debugf("Run client dir: %v", req.WorkingDir)
 	log.Debugf("Run client meta: %v", req.Meta)
-	iacCommand := util.GetEnv(iacCommand, iacCommandTofu)
+	iacCommand := util.GetEnv(iacCommand, iacDefaultCommandTofu)
 
 	token, err := engine.MetaString(req, tokenMeta)
 	if err != nil {
