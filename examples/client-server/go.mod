@@ -3,7 +3,7 @@ module github.com/gruntwork-io/terragrunt-engine-go/example/client-server
 go 1.21
 
 require (
-	github.com/gruntwork-io/terragrunt-engine-go v0.0.3-rc2024081904
+	github.com/gruntwork-io/terragrunt-engine-go v0.0.2
 	github.com/hashicorp/go-plugin v1.6.1
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.65.0
@@ -24,3 +24,5 @@ require (
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240711142825-46eb208f015d // indirect
 )
+
+replace github.com/gruntwork-io/terragrunt-engine-go => ../..
