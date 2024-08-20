@@ -2,8 +2,6 @@ FROM golang:1.21.13-bullseye as builder
 
 ARG ENGINE_VERSION=v0.0.3-rc2024081902
 
-
-
 # clone base engine repo
 WORKDIR src
 RUN git clone https://github.com/gruntwork-io/terragrunt-engine-go.git -b ${ENGINE_VERSION} .
