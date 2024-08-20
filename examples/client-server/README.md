@@ -11,8 +11,7 @@ This will build the `terragrunt-engine-client` and `terragrunt-engine-server` bi
 
 ## Example HCL Configuration
 
-Here is an example of how you can configure the IaC engine client in your Terragrunt configuration:
-
+Here is an example of how you can configure the IaC engine client in your Terragrunt configuration for AMD64 Linux:
 * run `docker compose up` to start the server
 * prepare the client configuration in `terragrunt.hcl` file
 ```hcl
