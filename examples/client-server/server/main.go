@@ -19,9 +19,9 @@ import (
 
 const (
 	listenAddressEnvName = "LISTEN_ADDRESS"
+	tokenEnvName         = "TOKEN"
 	defaultListenAddress = ":50051"
 
-	tokenMeta      = "token"
 	readBufferSize = 1024
 )
 
@@ -140,7 +140,7 @@ func Serve(token string) {
 }
 
 func main() {
-	token := util.GetEnv(tokenMeta, "")
+	token := util.GetEnv(tokenEnvName, "")
 	if token == "" {
 		cliToken := flag.String("token", "", "Token for authenticating requests")
 		flag.Parse()
