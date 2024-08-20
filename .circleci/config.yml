@@ -95,11 +95,10 @@ jobs:
           <<: *install_gruntwork_utils
       - run: |
           go mod tidy
-          pushd .
-          cd example/client-server/client
+          pushd example/client-server/client
           build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
           popd
-          cd example/client-server/server
+          pushd example/client-server/server
           build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
       - persist_to_workspace:
           root: .
