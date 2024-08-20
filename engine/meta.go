@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// Meta extract request.Meta to go map[string]interface{} struct.
+// Meta extracts request.Meta to go map[string]interface{} struct.
 func Meta(request *proto.RunRequest) (map[string]interface{}, error) {
 	protoMeta := request.Meta
 	meta := make(map[string]interface{})

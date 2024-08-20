@@ -19,10 +19,12 @@ import (
 
 const (
 	iacCommand            = "IAC_COMMAND"
+	tfAutoApprove         = "TF_IN_AUTOMATION"
 	iacDefaultCommandTofu = "tofu"
 	tokenMeta             = "token"
 	endpointMeta          = "endpoint"
-	tfAutoApprove         = "TF_IN_AUTOMATION"
+	connectAddress        = "CONNECT_ADDRESS"
+	defaultConnectAddress = "localhost:50051"
 )
 
 type Command struct {
@@ -39,7 +41,7 @@ type CommandOutput struct {
 }
 
 func Run(endpoint string, command *Command) (*CommandOutput, error) {
-	connectAddress := util.GetEnv("CONNECT_ADDRESS", "localhost:50051")
+	connectAddress := util.GetEnv(connectAddress, defaultConnectAddress)
 	if endpoint != "" {
 		connectAddress = endpoint
 	}
@@ -151,7 +153,7 @@ func (c *ClientServerEngine) GRPCServer(_ *plugin.GRPCBroker, s *grpc.Server) er
 // GRPCClient is used to create a client that connects to the
 //
 //nolint:unparam // result 0 (error) is always nil
-func (c *ClientServerEngine) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, client *grpc.ClientConn) (interface{}, error) {
+func (c *ClientServerEngine) GRPCClient(_ context.Context, _ *plugin.GRPCBroker, client *grpc.ClientConn) (any, error) {
 	return tgengine.NewEngineClient(client), nil
 }
 
