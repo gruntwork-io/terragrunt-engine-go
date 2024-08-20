@@ -65,13 +65,13 @@ function check_release_exists() {
 function get_release_id() {
   local -r release_response=$1
 
-  echo "$release_response" | jq -r '.id'
+  jq -r '.id' <<< "$release_response"
 }
 
 function get_asset_urls() {
   local -r release_response=$1
 
-  echo "$release_response" | jq -r '.assets[].browser_download_url'
+  jq -r '.assets[].browser_download_url' <<< "$release_response"
 }
 
 function verify_and_reupload_assets() {
