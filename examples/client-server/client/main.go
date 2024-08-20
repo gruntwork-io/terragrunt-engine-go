@@ -17,6 +17,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+const (
+	iacCommand     = "IAC_COMMAND"
+	iacCommandTofu = "tofu"
+	tokenMeta      = "token"
+	endpointMeta   = "endpoint"
+	tfAutoApprove  = "TF_IN_AUTOMATION"
+)
+
 type Command struct {
 	Token      string
 	Command    string
@@ -80,18 +88,18 @@ func (c *ClientServerEngine) Init(req *tgengine.InitRequest, stream tgengine.Eng
 }
 
 func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engine_RunServer) error {
-	log.Infof("Run client command: %v", req.Command)
-	log.Infof("Run client args: %v", req.Args)
-	log.Infof("Run client dir: %v", req.WorkingDir)
-	log.Infof("Run client meta: %v", req.Meta)
-	iacCommand := util.GetEnv("IAC_COMMAND", "tofu")
+	log.Debugf("Run client command: %v", req.Command)
+	log.Debugf("Run client args: %v", req.Args)
+	log.Debugf("Run client dir: %v", req.WorkingDir)
+	log.Debugf("Run client meta: %v", req.Meta)
+	iacCommand := util.GetEnv(iacCommand, iacCommandTofu)
 
-	token, err := engine.MetaString(req, "token")
+	token, err := engine.MetaString(req, tokenMeta)
 	if err != nil {
 		return err
 	}
 
-	endpoint, err := engine.MetaString(req, "endpoint")
+	endpoint, err := engine.MetaString(req, endpointMeta)
 	if err != nil {
 		return err
 	}
@@ -101,7 +109,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	for _, value := range req.Args {
 		command += " " + value
 	}
-	req.EnvVars["TF_IN_AUTOMATION"] = "true"
+	req.EnvVars[tfAutoApprove] = "true"
 
 	output, err := Run(endpoint, &Command{
 		Command:    command,

@@ -28,11 +28,11 @@ type ShellServiceServer struct {
 // RunCommand validates the token and runs the command.
 func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
 	if req.Token != s.Token {
-		log.Infof("Invalid token: %s, expected %s", req.Token, s.Token)
+		log.Errorf("Invalid token: %s, expected %s", req.Token, s.Token)
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
+	log.Debugf("Running command: %s in %s", req.Command, req.WorkingDir)
 	// run command in bash
 	cmd := exec.Command("bash", "-c", req.Command)
 
