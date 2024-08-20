@@ -17,6 +17,9 @@ build:
 	cd server ;\
 	go build -o ../terragrunt-engine-server -ldflags "-extldflags '-static'" .
 
+docker:
+	docker build -t terragrunt-engine-server .
+
 pre-commit:
 	pre-commit run --all-files
 
