@@ -1,4 +1,4 @@
-module github.com/gruntwork-io/terragrunt-engine-go/example/client-server
+module github.com/gruntwork-io/terragrunt-engine-go/examples/client-server
 
 go 1.21
 

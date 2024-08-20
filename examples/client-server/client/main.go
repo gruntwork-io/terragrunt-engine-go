@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
+	"github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/util"
 
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/go-plugin"
 	log "github.com/sirupsen/logrus"
 
-	pb "github.com/gruntwork-io/terragrunt-engine-go/example/client-server/proto"
+	pb "github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/proto"
 	tgengine "github.com/gruntwork-io/terragrunt-engine-go/proto"
 	"google.golang.org/grpc"
 )

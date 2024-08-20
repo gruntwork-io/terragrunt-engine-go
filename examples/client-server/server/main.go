@@ -9,11 +9,11 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/gruntwork-io/terragrunt-engine-go/example/client-server/util"
+	"github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/util"
 
 	"google.golang.org/grpc"
 
-	pb "github.com/gruntwork-io/terragrunt-engine-go/example/client-server/proto"
+	pb "github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/proto"
 	log "github.com/sirupsen/logrus"
 )
 
