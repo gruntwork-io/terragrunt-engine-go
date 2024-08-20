@@ -14,8 +14,9 @@ ENV LISTEN_ADDRESS=0.0.0.0:50051
 RUN mise use --global -y opentofu@1.7.0
 RUN ln -s /root/.local/share/mise/installs/opentofu/1.7.0/bin/tofu /bin/tofu
 
-RUN mkdir /app
-COPY --from=downloader /tmp/terragrunt-engine-server /app/terragrunt-engine-server
+COPY --from=downloader /tmp/terragrunt-engine-server /terragrunt-engine-server
 
+RUN mkdir /app
 WORKDIR /app
-ENTRYPOINT ["/app/terragrunt-engine-server"]
+ENTRYPOINT ["/terragrunt-engine-server"]
+

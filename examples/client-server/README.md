@@ -1,17 +1,17 @@
 # Example Engine Client - Server implementation
 
-To build locally the client and server, run make command:
+o build the client and server locally, run the `make` command:
 ```bash
 make
 ```
-It will build client and server binaries.
+This will build the `terragrunt-engine-client` and `terragrunt-engine-server` binaries.
 
 ## Example HCL Configuration
 
 Here is an example of how you can configure the IaC engine client in your Terragrunt configuration:
 
 * update `docker-compose.yml` with path to the project where IaC tool should be invoked
-* run `docker-compose up` to start the server
+* run `docker compose up` to start the server
 * prepare the client configuration in `terragrunt.hcl` file
 ```hcl
 # terragrunt.hcl

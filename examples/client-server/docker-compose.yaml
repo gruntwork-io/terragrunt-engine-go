@@ -1,5 +1,3 @@
-
-version: '3'
 services:
   terragrunt-engine-server:
     build:
@@ -9,6 +7,6 @@ services:
       TOKEN: secret-token
     volumes:
       # Update path to allow tofu access from container to working directory
-      - /projects:/projects
+      - ./:/app
     ports:
       - "127.0.0.1:50051:50051"
