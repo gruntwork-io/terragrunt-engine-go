@@ -123,14 +123,14 @@ func readOutput(r io.Reader, ch chan<- string) {
 
 // Serve starts the gRPC server
 func Serve(token string) {
-	listenAddress := util.GetEnv(listenAddress, defaultListenAddress)
-	listener, err := net.Listen("tcp", listenAddress)
+	address := util.GetEnv(listenAddress, defaultListenAddress)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{Token: token})
-	log.Infof("Server is running on port " + listenAddress)
+	log.Infof("Server is running on port " + address)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
