@@ -86,7 +86,6 @@ jobs:
           path: logs
       - store_test_results:
           path: logs
-          path: logs
   build:
     resource_class: xlarge
     <<: *defaults
