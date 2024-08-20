@@ -92,12 +92,22 @@ jobs:
       - run:
           <<: *install_gruntwork_utils
       - run: |
-          cd examples/client-server
+          go mod tidy
+          pushd examples/client-server
           make
+          build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+          popd
+          pushd examples/client-server/server
+          build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - examples/client-server/client/bin
+            - examples/client-server/server/bin
       - store_artifacts:
-          path: examples/client-server/terragrunt-engine-client
+          path: examples/client-server/client/bin
       - store_artifacts:
-          path: examples/client-server/terragrunt-engine-server
+          path: examples/client-server/server/bin
 
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
