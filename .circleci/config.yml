@@ -86,6 +86,7 @@ jobs:
           path: logs
       - store_test_results:
           path: logs
+          path: logs
   build:
     resource_class: xlarge
     <<: *defaults
@@ -95,20 +96,20 @@ jobs:
           <<: *install_gruntwork_utils
       - run: |
           go mod tidy
-          pushd example/client-server/client
+          pushd examples/client-server/client
           build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
           popd
-          pushd example/client-server/server
+          pushd examples/client-server/server
           build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
       - persist_to_workspace:
           root: .
           paths:
-            - example/client-server/client/bin
-            - example/client-server/server/bin
+            - examples/client-server/client/bin
+            - examples/client-server/server/bin
       - store_artifacts:
-          path: example/client-server/client/bin
+          path: examples/client-server/client/bin
       - store_artifacts:
-          path: example/client-server/server/bin
+          path: examples/client-server/server/bin
 
   release:
     <<: *env
@@ -139,8 +140,8 @@ jobs:
             mkdir -p bin-server
             mkdir -p bin-client
             # copy other binaries
-            cp -r example/client-server/server/bin/* bin-server/
-            cp -r example/client-server/client/bin/* bin-client/
+            cp -r examples/client-server/server/bin/* bin-server/
+            cp -r examples/client-server/client/bin/* bin-client/
                         
             # create separated directory for client and separated for server
             
