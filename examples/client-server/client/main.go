@@ -51,7 +51,10 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 		return nil, err
 	}
 	defer func() {
-		_ = conn.Close()
+		err := conn.Close()
+		if err != nil {
+			log.Errorf("Error closing connection: %v", err)
+		}
 	}()
 
 	client := pb.NewShellServiceClient(conn)

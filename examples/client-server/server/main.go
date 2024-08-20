@@ -75,7 +75,10 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 	}
 
 	defer func() {
-		_ = stdin.Close()
+		err := stdin.Close()
+		if err != nil {
+			log.Errorf("Error closing stdin: %v", err)
+		}
 	}()
 
 	// Read stdout and stderr
