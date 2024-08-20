@@ -18,13 +18,15 @@ import (
 )
 
 const (
-	iacCommand            = "IAC_COMMAND"
-	tfAutoApprove         = "TF_IN_AUTOMATION"
-	iacDefaultCommandTofu = "tofu"
-	tokenMeta             = "token"
-	endpointMeta          = "endpoint"
-	connectAddress        = "CONNECT_ADDRESS"
+	iacCommandEnvName     = "IAC_COMMAND"
+	tfAutoApproveEnvName  = "TF_IN_AUTOMATION"
+	connectAddressEnvName = "CONNECT_ADDRESS"
+
+	defaultIacCommand     = "tofu"
 	defaultConnectAddress = "localhost:50051"
+
+	tokenMeta    = "token"
+	endpointMeta = "endpoint"
 )
 
 type Command struct {
@@ -41,7 +43,7 @@ type CommandOutput struct {
 }
 
 func Run(endpoint string, command *Command) (*CommandOutput, error) {
-	connectAddress := util.GetEnv(connectAddress, defaultConnectAddress)
+	connectAddress := util.GetEnv(connectAddressEnvName, defaultConnectAddress)
 	if endpoint != "" {
 		connectAddress = endpoint
 	}
@@ -97,7 +99,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	log.Debugf("Run client args: %v", req.Args)
 	log.Debugf("Run client dir: %v", req.WorkingDir)
 	log.Debugf("Run client meta: %v", req.Meta)
-	iacCommand := util.GetEnv(iacCommand, iacDefaultCommandTofu)
+	iacCommand := util.GetEnv(iacCommandEnvName, defaultIacCommand)
 
 	token, err := engine.MetaString(req, tokenMeta)
 	if err != nil {
@@ -114,7 +116,7 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	for _, value := range req.Args {
 		command += " " + value
 	}
-	req.EnvVars[tfAutoApprove] = "true"
+	req.EnvVars[tfAutoApproveEnvName] = "true"
 
 	output, err := Run(endpoint, &Command{
 		Command:    command,

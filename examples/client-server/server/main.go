@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	listenAddress        = "LISTEN_ADDRESS"
+	listenAddressEnvName = "LISTEN_ADDRESS"
 	defaultListenAddress = ":50051"
-	tokenKey             = "token"
-	readBufferSize       = 1024
+
+	tokenMeta      = "token"
+	readBufferSize = 1024
 )
 
 // ShellServiceServer implements the ShellService defined in the proto file.
@@ -125,7 +126,7 @@ func readOutput(r io.Reader, ch chan<- string) {
 
 // Serve starts the gRPC server
 func Serve(token string) {
-	address := util.GetEnv(listenAddress, defaultListenAddress)
+	address := util.GetEnv(listenAddressEnvName, defaultListenAddress)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
@@ -139,14 +140,14 @@ func Serve(token string) {
 }
 
 func main() {
-	token := util.GetEnv(tokenKey, "")
+	token := util.GetEnv(tokenMeta, "")
 	if token == "" {
-		clitoken := flag.String("token", "", "Token for authenticating requests")
+		cliToken := flag.String("token", "", "Token for authenticating requests")
 		flag.Parse()
-		if *clitoken == "" {
+		if *cliToken == "" {
 			log.Fatal("Token is required")
 		}
-		token = *clitoken
+		token = *cliToken
 	}
 	Serve(token)
 }
