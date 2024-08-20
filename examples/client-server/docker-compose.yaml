@@ -6,7 +6,6 @@ services:
     environment:
       TOKEN: secret-token
     volumes:
-      # Update path to allow tofu access from container to working directory
       - ./:/app
     ports:
       - "127.0.0.1:50051:50051"

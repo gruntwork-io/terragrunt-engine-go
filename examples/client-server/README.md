@@ -13,7 +13,6 @@ This will build the `terragrunt-engine-client` and `terragrunt-engine-server` bi
 
 Here is an example of how you can configure the IaC engine client in your Terragrunt configuration:
 
-* update `docker-compose.yml` with path to the project where IaC tool should be invoked
 * run `docker compose up` to start the server
 * prepare the client configuration in `terragrunt.hcl` file
 ```hcl
