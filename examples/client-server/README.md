@@ -1,6 +1,9 @@
 # Example Engine Client - Server implementation
 
-o build the client and server locally, run the `make` command:
+Example implementation of the Terragrunt IaC engine client and server.
+Use it only for testing purposes since it is allowing execution of arbitrary bash commands on the server.
+
+To build the client and server locally, run the `make` command:
 ```bash
 make
 ```
