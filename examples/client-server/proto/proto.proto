@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "./proto";
+
+service ShellService {
+  rpc RunCommand (CommandRequest) returns (CommandResponse);
+}
+
+message CommandRequest {
+  string token = 1;
+  string command = 2;
+  string working_dir = 3;
+  map<string, string> env_vars = 4;
+}
+
+message CommandResponse {
+  string output = 1;
+  int32 exit_code = 2;
+  string error = 3;
+}

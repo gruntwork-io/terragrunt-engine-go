@@ -1,0 +1,11 @@
+services:
+  terragrunt-engine-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TOKEN: secret-token
+    volumes:
+      - ./:/app
+    ports:
+      - "127.0.0.1:50051:50051"

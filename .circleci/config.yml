@@ -1,15 +1,21 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.11
+
 env: &env
   environment:
     GO111MODULE: auto
-    GRUNTWORK_INSTALLER_VERSION: v0.0.36
-    MODULE_CI_VERSION: v0.54.0
+    GRUNTWORK_INSTALLER_VERSION: v0.0.39
+    MODULE_CI_VERSION: v0.57.0
     TERRATEST_LOG_PARSER_VERSION: v0.37.0
     GOLANG_VERSION: 1.21.1
+
 defaults: &defaults
-  machine:
-    enabled: true
-    image: ubuntu-2004:2022.10.1
   <<: *env
+  docker:
+    - image: 087285199408.dkr.ecr.us-east-1.amazonaws.com/circle-ci-test-image-base:go1.21.9-tf1.5-tg58.8-pck1.8-ci56.0
+
 run_precommit: &run_precommit
   # Fail the build if the pre-commit hooks don't pass. Note: if you run $ pre-commit install locally within this repo, these hooks will
   # execute automatically every time before you commit, ensuring the build never fails at this step!
@@ -17,6 +23,7 @@ run_precommit: &run_precommit
   command: |
     pre-commit install
     pre-commit run --all-files
+
 install_gruntwork_utils: &install_gruntwork_utils
   name: install gruntwork utils
   command: |
@@ -30,15 +37,13 @@ install_gruntwork_utils: &install_gruntwork_utils
       --terragrunt-version "NONE" \
       --packer-version "NONE" \
       --go-version ${GOLANG_VERSION}
-version: 2.1
+
 #----------------------------------------------------------------------------------------------------------------------
 # BUILD JOBS
 #----------------------------------------------------------------------------------------------------------------------
 jobs:
   precommit:
-    <<: *env
-    docker:
-      - image: 087285199408.dkr.ecr.us-east-1.amazonaws.com/circle-ci-test-image-base:go1.21.9-tf1.5-tg39.1-pck1.8-ci54.0
+    <<: *defaults
     steps:
       - checkout
       # Fail the build if the pre-commit hooks don't pass. Note: if you run pre-commit install locally, these hooks will
@@ -73,13 +78,36 @@ jobs:
       - run:
           name: Terratest log parser
           command: |
-            gruntwork-install --binary-name 'terratest_log_parser' --repo 'https://github.com/gruntwork-io/terratest' --tag 'v0.30.0'
             terratest_log_parser --testlog logs/tests.log --outputdir logs
           when: always
       - store_artifacts:
           path: logs
       - store_test_results:
           path: logs
+  build:
+    resource_class: xlarge
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          <<: *install_gruntwork_utils
+      - run: |
+          go mod tidy
+          pushd examples/client-server/client
+          build-go-binaries --app-name terragrunt-iac-engine-client --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+          popd
+          pushd examples/client-server/server
+          build-go-binaries --app-name terragrunt-iac-engine-server --dest-path bin --ld-flags "-X github.com/gruntwork-io/go-commons/version.Version=$CIRCLE_TAG -extldflags '-static'"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - examples/client-server/client/bin
+            - examples/client-server/server/bin
+      - store_artifacts:
+          path: examples/client-server/client/bin
+      - store_artifacts:
+          path: examples/client-server/server/bin
+
 #----------------------------------------------------------------------------------------------------------------------
 # WORKFLOWS
 #----------------------------------------------------------------------------------------------------------------------
@@ -106,3 +134,15 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+          requires:
+            - precommit
+          context:
+            - AWS__PHXDEVOPS__circle-ci-test
+            - GCP__automated-tests
+            - GITHUB__PAT__gruntwork-ci
+            - APPLE__OSX__code-signing
+            - TERRAGRUNT_ENGINE__circle-ci

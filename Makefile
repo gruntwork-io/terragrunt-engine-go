@@ -11,7 +11,7 @@ tools:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.4.0
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
 
-protoc: $(shell find . -name '*.proto')
+protoc: $(shell find ./proto -name '*.proto')
 	protoc --go_out=. --go_opt=paths=source_relative proto/engine.proto
 	protoc --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/engine.proto
 
