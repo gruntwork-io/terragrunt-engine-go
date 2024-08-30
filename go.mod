@@ -5,7 +5,6 @@ go 1.21
 require (
 	github.com/golang/protobuf v1.5.4
 	github.com/hashicorp/go-plugin v1.6.1
-	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
@@ -25,5 +24,5 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240711142825-46eb208f015d // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
