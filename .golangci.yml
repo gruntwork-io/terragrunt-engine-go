@@ -29,10 +29,10 @@ linters-settings:
   gofmt:
     simplify: true
   gofumpt:
-    lang-version: "1.21"
+    lang-version: "1.23"
     extra-rules: false
   gosimple:
-    go: "1.21"
+    go: "1.23"
     checks: [ "all" ]
   dupl:
     threshold: 120
