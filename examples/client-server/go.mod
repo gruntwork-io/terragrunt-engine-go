@@ -1,6 +1,8 @@
 module github.com/gruntwork-io/terragrunt-engine-go/examples/client-server
 
-go 1.21
+go 1.23
+
+toolchain go1.23.1
 
 require (
 	github.com/gruntwork-io/terragrunt-engine-go v0.0.2
