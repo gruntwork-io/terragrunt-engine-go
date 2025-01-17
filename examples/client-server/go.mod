@@ -8,8 +8,8 @@ require (
 	github.com/gruntwork-io/terragrunt-engine-go v0.0.4
 	github.com/hashicorp/go-plugin v1.6.2
 	github.com/sirupsen/logrus v1.9.3
-	google.golang.org/grpc v1.69.2
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/grpc v1.69.4
+	google.golang.org/protobuf v1.36.3
 )
 
 require (
