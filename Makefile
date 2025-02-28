@@ -4,7 +4,7 @@ lint:
 	golangci-lint run ./...
 
 test:
-	go test ./...
+	go test ./... -v
 
 tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
