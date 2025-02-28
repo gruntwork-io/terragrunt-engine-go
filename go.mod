@@ -2,6 +2,8 @@ module github.com/gruntwork-io/terragrunt-engine-go
 
 go 1.23.0
 
+toolchain go1.23.1
+
 require (
 	github.com/golang/protobuf v1.5.4
 	github.com/hashicorp/go-plugin v1.6.3
