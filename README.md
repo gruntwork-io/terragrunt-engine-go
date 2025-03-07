@@ -5,7 +5,7 @@ It uses gRPC for communication and Protocol Buffers for data serialization, ensu
 
 Make commands:
 - `make tools`: Install tools required for development.
-- `make proto`: Generate Go code from Protocol Buffers definitions.
+- `make protoc`: Generate Go code from Protocol Buffers definitions.
 - `make lint`: Run linters.
 - `make test`: Run tests.
 

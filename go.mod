@@ -3,7 +3,6 @@ module github.com/gruntwork-io/terragrunt-engine-go
 go 1.23
 
 require (
-	github.com/golang/protobuf v1.5.4
 	github.com/hashicorp/go-plugin v1.6.3
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.70.0
@@ -13,6 +12,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
