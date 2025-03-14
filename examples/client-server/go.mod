@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.23.1
 
 require (
-	github.com/gruntwork-io/terragrunt-engine-go v0.0.8
+	github.com/gruntwork-io/terragrunt-engine-go v0.0.11
 	github.com/hashicorp/go-plugin v1.6.3
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/grpc v1.71.0
@@ -23,7 +23,7 @@ require (
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250303144028-a0af3efb3deb // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250313205543-e70fdf4c4cb4 // indirect
 )
 
 replace github.com/gruntwork-io/terragrunt-engine-go => ../..
