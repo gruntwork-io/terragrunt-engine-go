@@ -1,3 +1,4 @@
+// Package engine defines the Terragrunt Engine interface, used to implement custom Terragrunt execution logic.
 package engine
 
 import (
