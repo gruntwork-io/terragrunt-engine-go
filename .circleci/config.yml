@@ -9,12 +9,12 @@ env: &env
     GRUNTWORK_INSTALLER_VERSION: v0.0.39
     MODULE_CI_VERSION: v0.57.0
     TERRATEST_LOG_PARSER_VERSION: v0.37.0
-    GOLANG_VERSION: 1.23.1
+    GOLANG_VERSION: 1.24.3
 
 defaults: &defaults
   <<: *env
   docker:
-    - image: 087285199408.dkr.ecr.us-east-1.amazonaws.com/circle-ci-test-image-base:go1.23.1-tf1.5-tg58.8-pck1.8-ci58.2
+    - image: 087285199408.dkr.ecr.us-east-1.amazonaws.com/circle-ci-test-image-base:go1.24.3-tf1.5-tg58.8-pck1.8-ci58.2
 
 run_precommit: &run_precommit
   # Fail the build if the pre-commit hooks don't pass. Note: if you run $ pre-commit install locally within this repo, these hooks will

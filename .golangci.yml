@@ -1,5 +1,6 @@
 version: "2"
 run:
+  go: "1.24"
   issues-exit-code: 1
   tests: true
 linters:
