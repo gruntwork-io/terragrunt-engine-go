@@ -30,14 +30,36 @@ message InitRequest {
 }
 
 message InitResponse {
-  // Standard output from the initialization process.
-  string stdout = 1;
+  oneof response {
+    InitResponseLog log = 1;
+    InitResponseStdWrite std_write = 2;
+    InitResponseResult result = 3;
+  }
+}
 
-  // Standard error output from the initialization process.
-  string stderr = 2;
+message InitResponseLog {
+  string level = 1;
+  string message = 2;
+}
 
-  // Result code of the initialization process.
-  int32 result_code = 3;
+message InitResponseStdWrite {
+  oneof response {
+    string stdout = 1;
+    string stderr = 2;
+  }
+}
+
+message InitResponseResult {
+  oneof result {
+    InitResponseSuccess success = 1;
+    InitResponseError error = 2;
+  }
+}
+
+message InitResponseSuccess {}
+
+message InitResponseError {
+  string message = 1;
 }
 
 message ShutdownRequest {
@@ -52,14 +74,28 @@ message ShutdownRequest {
 }
 
 message ShutdownResponse {
-  // Standard output from the shutdown process.
-  string stdout = 1;
+  oneof response {
+    ShutdownResponseLog log = 1;
+    ShutdownResponseResult result = 2;
+  }
+}
 
-  // Standard error output from the shutdown process.
-  string stderr = 2;
+message ShutdownResponseLog {
+  string level = 1;
+  string message = 2;
+}
 
-  // Result code of the shutdown process.
-  int32 result_code = 3;
+message ShutdownResponseResult {
+  oneof result {
+    ShutdownResponseSuccess success = 1;
+    ShutdownResponseError error = 2;
+  }
+}
+
+message ShutdownResponseSuccess {}
+
+message ShutdownResponseError {
+  string message = 1;
 }
 
 message RunRequest {
@@ -83,12 +119,36 @@ message RunRequest {
 }
 
 message RunResponse {
-  // Standard output from the command execution.
-  string stdout = 1;
+  oneof response {
+    RunResponseResult result = 3;
+    RunResponseLog log = 4;
+    RunResponseStdWrite std_write = 5;
+  }
+}
 
-  // Standard error output from the command execution.
-  string stderr = 2;
+message RunResponseLog {
+  string level = 1;
+  string message = 2;
+}
 
-  // Result code of the command execution.
-  int32 result_code = 3;
+message RunResponseStdWrite {
+  oneof response {
+    string stdout = 1;
+    string stderr = 2;
+  }
+}
+
+message RunResponseResult {
+  oneof result {
+    RunResponseSuccess success = 1;
+    RunResponseError error = 2;
+  }
+}
+
+message RunResponseSuccess {
+  int32 result_code = 1;
+}
+
+message RunResponseError {
+  string message = 1;
 }
