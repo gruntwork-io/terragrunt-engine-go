@@ -9,10 +9,10 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
-// Meta extracts request.Meta to go map[string]interface{} struct.
-func Meta(request *proto.RunRequest) (map[string]interface{}, error) {
+// Meta extracts request.Meta to go map[string]any struct.
+func Meta(request *proto.RunRequest) (map[string]any, error) {
 	protoMeta := request.Meta
-	meta := make(map[string]interface{})
+	meta := make(map[string]any)
 	for key, anyValue := range protoMeta {
 		var value structpb.Value
 		if err := anyValue.UnmarshalTo(&value); err != nil {
@@ -22,7 +22,7 @@ func Meta(request *proto.RunRequest) (map[string]interface{}, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error marshaling structpb.Value to JSON: %w", err)
 		}
-		var result interface{}
+		var result any
 		if err := json.Unmarshal(jsonData, &result); err != nil {
 			return nil, fmt.Errorf("error unmarshaling JSON to interface{}: %w", err)
 		}

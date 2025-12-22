@@ -71,12 +71,12 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 	}
 
 	// Start the command
-	if err := cmd.Start(); err != nil {
+	if err = cmd.Start(); err != nil {
 		return nil, err
 	}
 
 	defer func() {
-		if err := stdin.Close(); err != nil {
+		if err = stdin.Close(); err != nil {
 			log.Errorf("Error closing stdin: %v", err)
 		}
 	}()
