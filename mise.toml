@@ -3,3 +3,5 @@ go = "1.25.5"
 golangci-lint = "2.7.2"
 pre-commit = "4.2.0"
 protoc = "33.2"
+
+"go:golang.org/x/tools/cmd/goimports" = "latest"
