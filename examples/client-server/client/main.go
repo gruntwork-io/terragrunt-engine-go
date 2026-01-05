@@ -55,7 +55,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 		return nil, err
 	}
 	defer func() {
-		err := conn.Close()
+		err = conn.Close()
 		if err != nil {
 			log.Errorf("Error closing connection: %v", err)
 		}
@@ -63,7 +63,8 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 
 	client := pb.NewShellServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	// Use a longer timeout for command execution (e.g., terraform/tofu commands can take a while)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
 	resp, err := client.RunCommand(ctx, &pb.CommandRequest{
@@ -73,6 +74,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 		Token:      command.Token,
 	})
 	if err != nil {
+		log.Errorf("Failed to execute command on server %s: %v", connectAddress, err)
 		return nil, err
 	}
 

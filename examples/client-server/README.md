@@ -1,38 +1,64 @@
 # Example Engine Client - Server implementation
 
-Example implementation of the Terragrunt IaC engine client and server.
-Use it only for testing purposes since it is allowing execution of arbitrary bash commands on the server.
+Example implementation of the Terragrunt IaC engine to offload the running of OpenTofu commands on a remote server.
+Use it only for educational purposes since it allows execution of arbitrary bash commands on the server.
 
 To build the client and server locally, run the `make` command:
+
 ```bash
 make
 ```
+
 This will build the `terragrunt-engine-client` and `terragrunt-engine-server` binaries.
 
-## Example HCL Configuration
+## Example Usage
 
-Here is an example of how you can configure the IaC engine client in your Terragrunt configuration for AMD64 Linux:
-* run `docker compose up` to start the server
-* prepare the client configuration in `terragrunt.hcl` file
+This example includes a `live` directory with sample Terragrunt and Terraform configurations.
+
+### Starting the Server
+
+1. Build and start the server using Docker Compose:
+
+```bash
+docker compose up
+```
+
+### Running Terragrunt
+
+1. Navigate to the `live` directory:
+
+```bash
+cd live
+```
+
+2. Set the required environment variables:
+
+```bash
+export TG_EXPERIMENTAL_ENGINE=1
+export TG_SERVER_TOKEN=secret-token
+```
+
+3. Run Terragrunt commands:
+
+```bash
+terragrunt apply --auto-approve
+```
+
+### Example Configuration
+
+The `live/terragrunt.hcl` file contains the engine configuration:
+
 ```hcl
 # terragrunt.hcl
 engine {
-  source = "./terragrunt-iac-engine-client"
+  source = "../terragrunt-engine-client"
   meta = {
     # server endpoint
     endpoint = "127.0.0.1:50051"
     # authentication token
-    token    = get_env("TG_SERVER_TOKEN")
+    token    = get_env("TG_SERVER_TOKEN", "secret-token")
   }
 }
-```
-
-Terragrunt execution:
-```bash
-export TG_EXPERIMENTAL_ENGINE=1
-export TG_SERVER_TOKEN=secret-token
-
-terragrunt apply --auto-approve
 ```
 
 End to end example:

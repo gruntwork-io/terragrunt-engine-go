@@ -1,6 +1,7 @@
-FROM golang:1.21.13-bullseye as builder
+FROM golang:1.25.5-bookworm AS builder
 
-ARG ENGINE_VERSION=v0.0.3-rc2024081902
+# FIXME: Set to stable version of engine
+ARG ENGINE_VERSION=feat/updating-schema-using-oneof
 
 # clone base engine repo
 WORKDIR src
@@ -13,7 +14,7 @@ COPY . ./examples/client-server
 WORKDIR examples/client-server
 RUN make
 
-FROM gruntwork/terragrunt:0.2.0
+FROM gruntwork/terragrunt:2.1.7
 
 ENV LISTEN_ADDRESS=0.0.0.0:50051
 

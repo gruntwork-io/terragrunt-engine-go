@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
     environment:
       TOKEN: secret-token
+      LOG_LEVEL: debug
     volumes:
-      - ./:/app
+      - ./live:/app/live
     ports:
       - "127.0.0.1:50051:50051"
