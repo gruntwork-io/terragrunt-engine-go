@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    env:
+      MISE_PROFILE: cicd
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Use mise to install dependencies
+        uses: jdx/mise-action@v3
+        with:
+          version: 2025.12.13
+          experimental: true
+        env:
+          # Adding token here to reduce the likelihood of hitting rate limit issues.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: go-cache-paths
+        run: |
+          echo "go-build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Go Build Cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}-linux-amd64
+
+      - name: Run tidy
+        run: |
+          go mod tidy
+
+      - name: Build client binary
+        working-directory: examples/client-server/client
+        run: |
+          mkdir -p bin
+          go build -o bin/terragrunt-iac-engine-client \
+            -ldflags "-X github.com/gruntwork-io/go-commons/version.Version=${{ github.ref_name }} -extldflags '-static'" \
+            .
+
+      - name: Build server binary
+        working-directory: examples/client-server/server
+        run: |
+          mkdir -p bin
+          go build -o bin/terragrunt-iac-engine-server \
+            -ldflags "-X github.com/gruntwork-io/go-commons/version.Version=${{ github.ref_name }} -extldflags '-static'" \
+            .
+
+      - name: Upload client binary
+        uses: actions/upload-artifact@v6
+        with:
+          name: terragrunt-iac-engine-client
+          path: examples/client-server/client/bin/terragrunt-iac-engine-client
+
+      - name: Upload server binary
+        uses: actions/upload-artifact@v6
+        with:
+          name: terragrunt-iac-engine-server
+          path: examples/client-server/server/bin/terragrunt-iac-engine-server
+

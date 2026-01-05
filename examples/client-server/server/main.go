@@ -20,7 +20,9 @@ import (
 const (
 	listenAddressEnvName = "LISTEN_ADDRESS"
 	tokenEnvName         = "TOKEN"
+	logLevelEnvName      = "LOG_LEVEL"
 	defaultListenAddress = ":50051"
+	defaultLogLevel      = "info"
 
 	readBufferSize = 1024
 )
@@ -38,12 +40,13 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	log.Debugf("Running command: %s in %s", req.Command, req.WorkingDir)
+	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
 	// run command in bash
 	cmd := exec.Command("bash", "-c", req.Command)
 
 	// Set the working directory if provided
 	if req.WorkingDir != "" {
+		log.Infof("Setting working directory to %s", req.WorkingDir)
 		cmd.Dir = req.WorkingDir
 	}
 
@@ -71,12 +74,13 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 	}
 
 	// Start the command
-	if err := cmd.Start(); err != nil {
+	log.Infof("Starting command: %s", req.Command)
+	if err = cmd.Start(); err != nil {
 		return nil, err
 	}
 
 	defer func() {
-		if err := stdin.Close(); err != nil {
+		if err = stdin.Close(); err != nil {
 			log.Errorf("Error closing stdin: %v", err)
 		}
 	}()
@@ -110,6 +114,8 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 }
 
 func readOutput(r io.Reader, ch chan<- string) {
+	log.Infof("Reading output from %v", r)
+
 	var output string
 	buf := make([]byte, readBufferSize)
 	for {
@@ -122,6 +128,16 @@ func readOutput(r io.Reader, ch chan<- string) {
 		}
 	}
 	ch <- output
+}
+
+// setLogLevel configures the logrus log level from an environment variable or command-line flag.
+func setLogLevel(logLevel string) {
+	level, err := log.ParseLevel(logLevel)
+	if err != nil {
+		log.Warnf("Invalid log level '%s', defaulting to 'info'. Valid levels: trace, debug, info, warn, error, fatal, panic", logLevel)
+		level = log.InfoLevel
+	}
+	log.SetLevel(level)
 }
 
 // Serve starts the gRPC server
@@ -140,10 +156,21 @@ func Serve(token string) {
 }
 
 func main() {
+	// Set log level from environment variable or command-line flag
+	logLevel := util.GetEnv(logLevelEnvName, defaultLogLevel)
+	cliLogLevel := flag.String("log-level", "", "Log level (trace, debug, info, warn, error, fatal, panic)")
+
 	token := util.GetEnv(tokenEnvName, "")
+	cliToken := flag.String("token", "", "Token for authenticating requests")
+	flag.Parse()
+
+	// Use command-line flag if provided, otherwise use environment variable or default
+	if *cliLogLevel != "" {
+		logLevel = *cliLogLevel
+	}
+	setLogLevel(logLevel)
+
 	if token == "" {
-		cliToken := flag.String("token", "", "Token for authenticating requests")
-		flag.Parse()
 		if *cliToken == "" {
 			log.Fatal("Token is required")
 		}

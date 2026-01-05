@@ -1,26 +1,21 @@
-FROM golang:1.21.13-bullseye as builder
+FROM golang:1.25.5-bookworm AS builder
 
-ARG ENGINE_VERSION=v0.0.3-rc2024081902
-
-# clone base engine repo
-WORKDIR src
-RUN git clone https://github.com/gruntwork-io/terragrunt-engine-go.git -b ${ENGINE_VERSION} .
-# add examples from working directory
-RUN rm -rf ./examples/*
-COPY . ./examples/client-server
+# Copy the entire repository into the build context
+WORKDIR /build
+COPY . .
 
 # build engine
 WORKDIR examples/client-server
 RUN make
 
-FROM gruntwork/terragrunt:0.2.0
+FROM gruntwork/terragrunt:2.1.7
 
 ENV LISTEN_ADDRESS=0.0.0.0:50051
 
 RUN mise use --global -y opentofu@1.7.0
 RUN ln -s /root/.local/share/mise/installs/opentofu/1.7.0/bin/tofu /bin/tofu
 
-COPY --from=builder /go/src/examples/client-server/terragrunt-engine-server /opt/terragrunt-engine-server
+COPY --from=builder /build/examples/client-server/terragrunt-engine-server /opt/terragrunt-engine-server
 
 RUN mkdir /app
 WORKDIR /app

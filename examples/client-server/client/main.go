@@ -27,6 +27,8 @@ const (
 
 	tokenMeta    = "token"
 	endpointMeta = "endpoint"
+
+	pluginVersion = 1
 )
 
 type Command struct {
@@ -53,7 +55,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 		return nil, err
 	}
 	defer func() {
-		err := conn.Close()
+		err = conn.Close()
 		if err != nil {
 			log.Errorf("Error closing connection: %v", err)
 		}
@@ -61,7 +63,8 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 
 	client := pb.NewShellServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	// Use a longer timeout for command execution (e.g., terraform/tofu commands can take a while)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
 	resp, err := client.RunCommand(ctx, &pb.CommandRequest{
@@ -71,6 +74,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 		Token:      command.Token,
 	})
 	if err != nil {
+		log.Errorf("Failed to execute command on server %s: %v", connectAddress, err)
 		return nil, err
 	}
 
@@ -87,7 +91,25 @@ type ClientServerEngine struct {
 }
 
 func (c *ClientServerEngine) Init(req *tgengine.InitRequest, stream tgengine.Engine_InitServer) error {
-	err := stream.Send(&tgengine.InitResponse{Stdout: "Client server engine initialized\n", Stderr: "", ResultCode: 0})
+	// Send stdout message
+	err := stream.Send(&tgengine.InitResponse{
+		Response: &tgengine.InitResponse_Stdout{
+			Stdout: &tgengine.StdoutMessage{
+				Content: "Client server engine initialized\n",
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	// Send exit result message
+	err = stream.Send(&tgengine.InitResponse{
+		Response: &tgengine.InitResponse_ExitResult{
+			ExitResult: &tgengine.ExitResultMessage{
+				Code: 0,
+			},
+		},
+	})
 	if err != nil {
 		return err
 	}
@@ -127,10 +149,39 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	if err != nil {
 		return err
 	}
+	// Send stdout message if there's output
+	if output.Output != "" {
+		err = stream.Send(&tgengine.RunResponse{
+			Response: &tgengine.RunResponse_Stdout{
+				Stdout: &tgengine.StdoutMessage{
+					Content: output.Output,
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+	// Send stderr message if there's error output
+	if output.Error != "" {
+		err = stream.Send(&tgengine.RunResponse{
+			Response: &tgengine.RunResponse_Stderr{
+				Stderr: &tgengine.StderrMessage{
+					Content: output.Error,
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+	// Send exit result message
 	err = stream.Send(&tgengine.RunResponse{
-		Stdout:     output.Output,
-		Stderr:     output.Error,
-		ResultCode: output.ExitCode,
+		Response: &tgengine.RunResponse_ExitResult{
+			ExitResult: &tgengine.ExitResultMessage{
+				Code: output.ExitCode,
+			},
+		},
 	})
 	if err != nil {
 		return err
@@ -140,7 +191,25 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 }
 
 func (c *ClientServerEngine) Shutdown(req *tgengine.ShutdownRequest, stream tgengine.Engine_ShutdownServer) error {
-	err := stream.Send(&tgengine.ShutdownResponse{Stdout: "Client server engine shutdown\n", Stderr: "", ResultCode: 0})
+	// Send stdout message
+	err := stream.Send(&tgengine.ShutdownResponse{
+		Response: &tgengine.ShutdownResponse_Stdout{
+			Stdout: &tgengine.StdoutMessage{
+				Content: "Client server engine shutdown\n",
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	// Send exit result message
+	err = stream.Send(&tgengine.ShutdownResponse{
+		Response: &tgengine.ShutdownResponse_ExitResult{
+			ExitResult: &tgengine.ExitResultMessage{
+				Code: 0,
+			},
+		},
+	})
 	if err != nil {
 		return err
 	}
@@ -165,12 +234,13 @@ func (c *ClientServerEngine) GRPCClient(_ context.Context, _ *plugin.GRPCBroker,
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: plugin.HandshakeConfig{
-			ProtocolVersion:  1,
 			MagicCookieKey:   "engine",
 			MagicCookieValue: "terragrunt",
 		},
-		Plugins: map[string]plugin.Plugin{
-			"client-server-engine": &engine.TerragruntGRPCEngine{Impl: &ClientServerEngine{}},
+		VersionedPlugins: map[int]plugin.PluginSet{
+			pluginVersion: {
+				"client-server-engine": &engine.TerragruntGRPCEngine{Impl: &ClientServerEngine{}},
+			},
 		},
 		GRPCServer: plugin.DefaultGRPCServer,
 	})

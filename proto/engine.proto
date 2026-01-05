@@ -30,14 +30,12 @@ message InitRequest {
 }
 
 message InitResponse {
-  // Standard output from the initialization process.
-  string stdout = 1;
-
-  // Standard error output from the initialization process.
-  string stderr = 2;
-
-  // Result code of the initialization process.
-  int32 result_code = 3;
+  oneof response {
+    StdoutMessage stdout = 1;
+    StderrMessage stderr = 2;
+    ExitResultMessage exit_result = 3;
+    LogMessage log = 4;
+  }
 }
 
 message ShutdownRequest {
@@ -52,14 +50,12 @@ message ShutdownRequest {
 }
 
 message ShutdownResponse {
-  // Standard output from the shutdown process.
-  string stdout = 1;
-
-  // Standard error output from the shutdown process.
-  string stderr = 2;
-
-  // Result code of the shutdown process.
-  int32 result_code = 3;
+  oneof response {
+    StdoutMessage stdout = 1;
+    StderrMessage stderr = 2;
+    ExitResultMessage exit_result = 3;
+    LogMessage log = 4;
+  }
 }
 
 message RunRequest {
@@ -83,12 +79,40 @@ message RunRequest {
 }
 
 message RunResponse {
-  // Standard output from the command execution.
-  string stdout = 1;
+  oneof response {
+    StdoutMessage stdout = 1;
+    StderrMessage stderr = 2;
+    ExitResultMessage exit_result = 3;
+    LogMessage log = 4;
+  }
+}
 
-  // Standard error output from the command execution.
-  string stderr = 2;
+// StdoutMessage contains standard output content.
+message StdoutMessage {
+  string content = 1;
+}
 
-  // Result code of the command execution.
-  int32 result_code = 3;
+// StderrMessage contains standard error output content.
+message StderrMessage {
+  string content = 1;
+}
+
+// ExitResultMessage contains the exit code from a process.
+message ExitResultMessage {
+  int32 code = 1;
+}
+
+// LogMessage contains a log message with a level and content.
+// This is intended for informational/logging purposes, distinct from stdout/stderr.
+message LogMessage {
+  LogLevel level = 1;
+  string content = 2;
+}
+
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_DEBUG = 1;
+  LOG_LEVEL_INFO = 2;
+  LOG_LEVEL_WARN = 3;
+  LOG_LEVEL_ERROR = 4;
 }
