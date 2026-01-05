@@ -1,4 +1,4 @@
-package test
+package test_test
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 )
 
@@ -159,7 +160,7 @@ func TestGRPCServer(t *testing.T) {
 	broker := &plugin.GRPCBroker{}
 
 	err := grpcEngine.GRPCServer(broker, s)
-	assert.NoError(t, err, "Expected GRPCServer to not return an error")
+	require.NoError(t, err, "Expected GRPCServer to not return an error")
 
 	// Check if the service is registered correctly
 	serviceInfo := s.GetServiceInfo()
@@ -175,8 +176,10 @@ func TestGRPCClient(t *testing.T) {
 	server := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
 
-	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(t, err, "Expected no error starting listener")
+	var lc net.ListenConfig
+
+	lis, err := lc.Listen(context.Background(), "tcp", ":0")
+	require.NoError(t, err, "Expected no error starting listener")
 
 	go func() {
 		err := grpcEngine.GRPCServer(broker, server)
@@ -189,7 +192,7 @@ func TestGRPCClient(t *testing.T) {
 
 	// nolint:staticcheck
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
-	assert.NoError(t, err, "Expected no error dialing GRPC server")
+	require.NoError(t, err, "Expected no error dialing GRPC server")
 
 	defer func() {
 		err := conn.Close()
@@ -197,7 +200,7 @@ func TestGRPCClient(t *testing.T) {
 	}()
 
 	client, err := grpcEngine.GRPCClient(context.Background(), broker, conn)
-	assert.NoError(t, err, "Expected GRPCClient to not return an error")
+	require.NoError(t, err, "Expected GRPCClient to not return an error")
 	assert.NotNil(t, client, "Expected client to be non-nil")
 
 	engineClient, ok := client.(proto.EngineClient)
@@ -205,7 +208,7 @@ func TestGRPCClient(t *testing.T) {
 
 	// Test calling a method on the client
 	stream, err := engineClient.Init(context.Background(), &proto.InitRequest{})
-	assert.NoError(t, err, "Expected no error calling Init")
+	require.NoError(t, err, "Expected no error calling Init")
 	assert.NotNil(t, stream, "Expected Init stream to be non-nil")
 }
 
@@ -217,8 +220,10 @@ func TestInitResponseOneof(t *testing.T) {
 	server := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
 
-	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(t, err, "Expected no error starting listener")
+	var lc net.ListenConfig
+
+	lis, err := lc.Listen(context.Background(), "tcp", ":0")
+	require.NoError(t, err, "Expected no error starting listener")
 
 	go func() {
 		err := grpcEngine.GRPCServer(broker, server)
@@ -231,7 +236,7 @@ func TestInitResponseOneof(t *testing.T) {
 
 	// nolint:staticcheck
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
-	assert.NoError(t, err, "Expected no error dialing GRPC server")
+	require.NoError(t, err, "Expected no error dialing GRPC server")
 
 	defer func() {
 		err := conn.Close()
@@ -239,18 +244,18 @@ func TestInitResponseOneof(t *testing.T) {
 	}()
 
 	client, err := grpcEngine.GRPCClient(context.Background(), broker, conn)
-	assert.NoError(t, err, "Expected GRPCClient to not return an error")
+	require.NoError(t, err, "Expected GRPCClient to not return an error")
 
 	engineClient, ok := client.(proto.EngineClient)
 	assert.True(t, ok, "Expected client to be of type engine.EngineClient")
 
 	// Test Init stream
 	stream, err := engineClient.Init(context.Background(), &proto.InitRequest{})
-	assert.NoError(t, err, "Expected no error calling Init")
+	require.NoError(t, err, "Expected no error calling Init")
 
 	// Receive and verify stdout message
 	resp, err := stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 	assert.NotNil(t, resp, "Expected response to be non-nil")
 
 	stdout := resp.GetStdout()
@@ -262,7 +267,7 @@ func TestInitResponseOneof(t *testing.T) {
 
 	// Receive and verify log message
 	resp, err = stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	logMsg := resp.GetLog()
 	assert.NotNil(t, logMsg, "Expected log message")
@@ -274,7 +279,7 @@ func TestInitResponseOneof(t *testing.T) {
 
 	// Receive and verify exit result
 	resp, err = stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	exitResult := resp.GetExitResult()
 	assert.NotNil(t, exitResult, "Expected exit result message")
@@ -292,8 +297,10 @@ func TestRunResponseOneof(t *testing.T) {
 	server := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
 
-	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(t, err, "Expected no error starting listener")
+	var lc net.ListenConfig
+
+	lis, err := lc.Listen(context.Background(), "tcp", ":0")
+	require.NoError(t, err, "Expected no error starting listener")
 
 	go func() {
 		err := grpcEngine.GRPCServer(broker, server)
@@ -306,7 +313,7 @@ func TestRunResponseOneof(t *testing.T) {
 
 	// nolint:staticcheck
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
-	assert.NoError(t, err, "Expected no error dialing GRPC server")
+	require.NoError(t, err, "Expected no error dialing GRPC server")
 
 	defer func() {
 		err := conn.Close()
@@ -314,18 +321,18 @@ func TestRunResponseOneof(t *testing.T) {
 	}()
 
 	client, err := grpcEngine.GRPCClient(context.Background(), broker, conn)
-	assert.NoError(t, err, "Expected GRPCClient to not return an error")
+	require.NoError(t, err, "Expected GRPCClient to not return an error")
 
 	engineClient, ok := client.(proto.EngineClient)
 	assert.True(t, ok, "Expected client to be of type engine.EngineClient")
 
 	// Test Run stream
 	stream, err := engineClient.Run(context.Background(), &proto.RunRequest{})
-	assert.NoError(t, err, "Expected no error calling Run")
+	require.NoError(t, err, "Expected no error calling Run")
 
 	// Receive and verify stdout message
 	resp, err := stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	stdout := resp.GetStdout()
 	assert.NotNil(t, stdout, "Expected stdout message")
@@ -336,7 +343,7 @@ func TestRunResponseOneof(t *testing.T) {
 
 	// Receive and verify stderr message
 	resp, err = stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	stderr := resp.GetStderr()
 	assert.NotNil(t, stderr, "Expected stderr message")
@@ -347,7 +354,7 @@ func TestRunResponseOneof(t *testing.T) {
 
 	// Receive and verify exit result
 	resp, err = stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	exitResult := resp.GetExitResult()
 	assert.NotNil(t, exitResult, "Expected exit result message")
@@ -365,8 +372,10 @@ func TestShutdownResponseOneof(t *testing.T) {
 	server := grpc.NewServer()
 	broker := &plugin.GRPCBroker{}
 
-	lis, err := net.Listen("tcp", ":0")
-	assert.NoError(t, err, "Expected no error starting listener")
+	var lc net.ListenConfig
+
+	lis, err := lc.Listen(context.Background(), "tcp", ":0")
+	require.NoError(t, err, "Expected no error starting listener")
 
 	go func() {
 		err := grpcEngine.GRPCServer(broker, server)
@@ -379,7 +388,7 @@ func TestShutdownResponseOneof(t *testing.T) {
 
 	// nolint:staticcheck
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
-	assert.NoError(t, err, "Expected no error dialing GRPC server")
+	require.NoError(t, err, "Expected no error dialing GRPC server")
 
 	defer func() {
 		err := conn.Close()
@@ -387,14 +396,14 @@ func TestShutdownResponseOneof(t *testing.T) {
 	}()
 
 	client, err := grpcEngine.GRPCClient(context.Background(), broker, conn)
-	assert.NoError(t, err, "Expected GRPCClient to not return an error")
+	require.NoError(t, err, "Expected GRPCClient to not return an error")
 
 	engineClient, ok := client.(proto.EngineClient)
 	assert.True(t, ok, "Expected client to be of type engine.EngineClient")
 
 	// Test Shutdown stream
 	stream, err := engineClient.Shutdown(context.Background(), &proto.ShutdownRequest{})
-	assert.NoError(t, err, "Expected no error calling Shutdown")
+	require.NoError(t, err, "Expected no error calling Shutdown")
 
 	// Receive and verify log messages with different levels
 	expectedLevels := []proto.LogLevel{
@@ -406,7 +415,7 @@ func TestShutdownResponseOneof(t *testing.T) {
 
 	for i, expectedLevel := range expectedLevels {
 		resp, err := stream.Recv()
-		assert.NoError(t, err, "Expected no error receiving response %d", i)
+		require.NoError(t, err, "Expected no error receiving response %d", i)
 
 		logMsg := resp.GetLog()
 		assert.NotNil(t, logMsg, "Expected log message %d", i)
@@ -419,7 +428,7 @@ func TestShutdownResponseOneof(t *testing.T) {
 
 	// Receive and verify exit result
 	resp, err := stream.Recv()
-	assert.NoError(t, err, "Expected no error receiving response")
+	require.NoError(t, err, "Expected no error receiving response")
 
 	exitResult := resp.GetExitResult()
 	assert.NotNil(t, exitResult, "Expected exit result message")
