@@ -1,0 +1,47 @@
+name: Go Mod Tidy Check
+
+on:
+  workflow_call:
+
+jobs:
+  go-mod-tidy-check:
+    name: Check go mod tidy
+    runs-on: ubuntu-latest
+    env:
+      MISE_PROFILE: cicd
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Use mise to install dependencies
+        uses: jdx/mise-action@v2
+        with:
+          version: 2025.8.16
+          experimental: true
+        env:
+          # Adding token here to reduce the likelihood of hitting rate limit issues.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: go-cache-paths
+        run: |
+          echo "go-mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+
+      - name: Go Mod Cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}-linux-amd64
+
+      - name: Run go mod tidy
+        run: |
+          go mod tidy
+
+      - name: Check for changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::go mod tidy made changes to go.mod or go.sum"
+            git diff
+            exit 1
+          fi
+
