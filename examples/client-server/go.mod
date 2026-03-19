@@ -6,7 +6,7 @@ require (
 	github.com/gruntwork-io/terragrunt-engine-go v0.1.0
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/sirupsen/logrus v1.9.4
-	google.golang.org/grpc v1.79.1
+	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11
 )
 
