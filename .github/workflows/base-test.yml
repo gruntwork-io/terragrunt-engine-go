@@ -62,7 +62,7 @@ jobs:
           TMPDIR: ${{ matrix.os == 'macos' && '/tmp' || '' }}
 
       - name: Upload Report (${{ matrix.os }})
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-report-${{ matrix.os }}
           path: result.xml
