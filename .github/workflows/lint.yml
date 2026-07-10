@@ -15,7 +15,7 @@ jobs:
         go version
 
     - name: Set up mise
-      uses: jdx/mise-action@v3
+      uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d
       with:
         version: 2025.12.13
         experimental: true

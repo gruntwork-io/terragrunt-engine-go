@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Use mise to install dependencies
-        uses: jdx/mise-action@v3
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d
         with:
           version: 2025.12.13
           experimental: true
@@ -62,7 +62,7 @@ jobs:
           TMPDIR: ${{ matrix.os == 'macos' && '/tmp' || '' }}
 
       - name: Upload Report (${{ matrix.os }})
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: test-report-${{ matrix.os }}
           path: result.xml
