@@ -20,6 +20,6 @@ func (p *TerragruntGRPCEngine) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Ser
 	return nil
 }
 
-func (p *TerragruntGRPCEngine) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *TerragruntGRPCEngine) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (any, error) {
 	return proto.NewEngineClient(c), nil
 }
