@@ -149,7 +149,7 @@ func Serve(token string) {
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{Token: token})
-	log.Infof("Server is running on port " + address)
+	log.Info("Server is running on " + address)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
