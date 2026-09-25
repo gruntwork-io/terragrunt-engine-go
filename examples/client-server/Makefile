@@ -1,11 +1,15 @@
 default: build
 
+lint: SHELL:=/bin/bash
+lint:
+	golangci-lint run -c <(curl -s https://raw.githubusercontent.com/gruntwork-io/terragrunt/main/.golangci.yml) ./...
+
 tools:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.5
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.1
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
 
-protoc: $(shell find ./examples/client-server -name '*.proto')
+protoc: $(shell find ./proto -name '*.proto')
 	protoc --go_out=. --go_opt=paths=source_relative proto/proto.proto
 	protoc --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/proto.proto
 

@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
-	"fmt"
 	"io"
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/util"
 
@@ -34,28 +35,30 @@ type ShellServiceServer struct {
 }
 
 // RunCommand validates the token and runs the command.
-func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
-	if req.Token != s.Token {
-		log.Warnf("Invalid token: %s, expected %s", req.Token, s.Token)
-		return nil, fmt.Errorf("invalid token")
+func (s *ShellServiceServer) RunCommand(ctx context.Context, req *pb.CommandRequest) (*pb.CommandResponse, error) {
+	if req.GetToken() != s.Token {
+		log.Warnf("Invalid token: %s, expected %s", req.GetToken(), s.Token)
+		return nil, errors.New("invalid token")
 	}
 
-	log.Infof("Running command: %s in %s", req.Command, req.WorkingDir)
+	log.Infof("Running command: %s in %s", req.GetCommand(), req.GetWorkingDir())
 	// run command in bash
-	cmd := exec.Command("bash", "-c", req.Command)
+	//nolint:forbidigo // terragrunt venv rule; this example runs commands directly
+	cmd := exec.CommandContext(ctx, "bash", "-c", req.GetCommand())
 
 	// Set the working directory if provided
-	if req.WorkingDir != "" {
-		log.Infof("Setting working directory to %s", req.WorkingDir)
-		cmd.Dir = req.WorkingDir
+	if req.GetWorkingDir() != "" {
+		log.Infof("Setting working directory to %s", req.GetWorkingDir())
+		cmd.Dir = req.GetWorkingDir()
 	}
 
 	// Set the environment variables if provided
-	if len(req.EnvVars) > 0 {
-		env := os.Environ()
-		for key, value := range req.EnvVars {
+	if len(req.GetEnvVars()) > 0 {
+		env := os.Environ() //nolint:forbidigo // terragrunt venv rule; this example reads the process env
+		for key, value := range req.GetEnvVars() {
 			env = append(env, key+"="+value)
 		}
+
 		cmd.Env = env
 	}
 
@@ -64,17 +67,20 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 	if err != nil {
 		return nil, err
 	}
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
+
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		return nil, err
 	}
 
 	// Start the command
-	log.Infof("Starting command: %s", req.Command)
+	log.Infof("Starting command: %s", req.GetCommand())
+
 	if err = cmd.Start(); err != nil {
 		return nil, err
 	}
@@ -100,9 +106,11 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 	errorOutput := <-errorChan
 
 	exitCode := 0
+
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitCode = exitError.ExitCode()
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			exitCode = exitErr.ExitCode()
 		}
 	}
 
@@ -116,18 +124,22 @@ func (s *ShellServiceServer) RunCommand(_ context.Context, req *pb.CommandReques
 func readOutput(r io.Reader, ch chan<- string) {
 	log.Infof("Reading output from %v", r)
 
-	var output string
+	var output strings.Builder
+
 	buf := make([]byte, readBufferSize)
+
 	for {
 		n, err := r.Read(buf)
 		if n > 0 {
-			output += string(buf[:n])
+			output.Write(buf[:n])
 		}
+
 		if err != nil {
 			break
 		}
 	}
-	ch <- output
+
+	ch <- output.String()
 }
 
 // setLogLevel configures the logrus log level from an environment variable or command-line flag.
@@ -135,21 +147,28 @@ func setLogLevel(logLevel string) {
 	level, err := log.ParseLevel(logLevel)
 	if err != nil {
 		log.Warnf("Invalid log level '%s', defaulting to 'info'. Valid levels: trace, debug, info, warn, error, fatal, panic", logLevel)
+
 		level = log.InfoLevel
 	}
+
 	log.SetLevel(level)
 }
 
 // Serve starts the gRPC server
 func Serve(token string) {
 	address := util.GetEnv(listenAddressEnvName, defaultListenAddress)
-	listener, err := net.Listen("tcp", address)
+
+	var lc net.ListenConfig //nolint:forbidigo // terragrunt venv rule; this example binds directly
+
+	listener, err := lc.Listen(context.Background(), "tcp", address)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
+
 	grpcServer := grpc.NewServer()
 	pb.RegisterShellServiceServer(grpcServer, &ShellServiceServer{Token: token})
 	log.Info("Server is running on " + address)
+
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
@@ -162,19 +181,23 @@ func main() {
 
 	token := util.GetEnv(tokenEnvName, "")
 	cliToken := flag.String("token", "", "Token for authenticating requests")
+
 	flag.Parse()
 
 	// Use command-line flag if provided, otherwise use environment variable or default
 	if *cliLogLevel != "" {
 		logLevel = *cliLogLevel
 	}
+
 	setLogLevel(logLevel)
 
 	if token == "" {
 		if *cliToken == "" {
 			log.Fatal("Token is required")
 		}
+
 		token = *cliToken
 	}
+
 	Serve(token)
 }
