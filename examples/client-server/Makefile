@@ -1,8 +1,7 @@
 default: build
 
-lint: SHELL:=/bin/bash
 lint:
-	golangci-lint run -c <(curl -s https://raw.githubusercontent.com/gruntwork-io/terragrunt/main/.golangci.yml) ./...
+	golangci-lint run -c ../../.golangci.yml ./...
 
 tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11

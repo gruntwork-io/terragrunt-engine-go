@@ -1,8 +1,7 @@
 default: test
 
-lint: SHELL:=/bin/bash
 lint:
-	golangci-lint run -c <(curl -s https://raw.githubusercontent.com/gruntwork-io/terragrunt/main/.golangci.yml) ./...
+	golangci-lint run ./...
 
 update-local-lint: SHELL:=/bin/bash
 update-local-lint:
