@@ -3,8 +3,13 @@
 This repository contains the implementation of the [Terragrunt](https://github.com/gruntwork-io/terragrunt) Engine written in Go.
 It uses gRPC for communication and Protocol Buffers for data serialization, ensuring high performance and scalability.
 
+Install the tools required for development (Go, golangci-lint, protoc and its plugins) with [mise](https://mise.jdx.dev):
+
+```bash
+mise install
+```
+
 Make commands:
-- `make tools`: Install tools required for development.
 - `make protoc`: Generate Go code from Protocol Buffers definitions.
 - `make lint`: Run linters.
 - `make test`: Run tests.

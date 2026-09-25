@@ -1,8 +1,10 @@
 [tools]
-go = "1.26.0"
-golangci-lint = "2.9.0"
+go = "1.27.0"
+golangci-lint = "2.13.2"
 pre-commit = "4.2.0"
 protoc = "33.2"
+protoc-gen-go = "1.36.11"
+protoc-gen-go-grpc = "1.6.1"
 opentofu = "1.11.2"
 
 "go:golang.org/x/tools/cmd/goimports" = "0.48.0"

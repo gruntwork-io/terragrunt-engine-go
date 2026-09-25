@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/gruntwork-io/terragrunt-engine-go/examples/client-server/util"
@@ -29,13 +30,16 @@ const (
 	endpointMeta = "endpoint"
 
 	pluginVersion = 1
+
+	// commandTimeout is long because terraform/tofu commands can take a while.
+	commandTimeout = 5 * time.Minute
 )
 
 type Command struct {
+	EnvVars    map[string]string
 	Token      string
 	Command    string
 	WorkingDir string
-	EnvVars    map[string]string
 }
 
 type CommandOutput struct {
@@ -49,11 +53,14 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 	if endpoint != "" {
 		connectAddress = endpoint
 	}
+
 	log.Infof("Connecting to %s", connectAddress)
+
 	conn, err := grpc.NewClient(connectAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
+
 	defer func() {
 		err = conn.Close()
 		if err != nil {
@@ -63,8 +70,7 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 
 	client := pb.NewShellServiceClient(conn)
 
-	// Use a longer timeout for command execution (e.g., terraform/tofu commands can take a while)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
 	defer cancel()
 
 	resp, err := client.RunCommand(ctx, &pb.CommandRequest{
@@ -79,10 +85,11 @@ func Run(endpoint string, command *Command) (*CommandOutput, error) {
 	}
 
 	output := &CommandOutput{
-		Output:   resp.Output,
-		Error:    resp.Error,
-		ExitCode: resp.ExitCode,
+		Output:   resp.GetOutput(),
+		Error:    resp.GetError(),
+		ExitCode: resp.GetExitCode(),
 	}
+
 	return output, nil
 }
 
@@ -113,14 +120,16 @@ func (c *ClientServerEngine) Init(req *tgengine.InitRequest, stream tgengine.Eng
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engine_RunServer) error {
-	log.Debugf("Run client command: %v", req.Command)
-	log.Debugf("Run client args: %v", req.Args)
-	log.Debugf("Run client dir: %v", req.WorkingDir)
-	log.Debugf("Run client meta: %v", req.Meta)
+	log.Debugf("Run client command: %v", req.GetCommand())
+	log.Debugf("Run client args: %v", req.GetArgs())
+	log.Debugf("Run client dir: %v", req.GetWorkingDir())
+	log.Debugf("Run client meta: %v", req.GetMeta())
+
 	iacCommand := util.GetEnv(iacCommandEnvName, defaultIacCommand)
 
 	token, err := engine.MetaString(req, tokenMeta)
@@ -134,16 +143,14 @@ func (c *ClientServerEngine) Run(req *tgengine.RunRequest, stream tgengine.Engin
 	}
 
 	// build run command
-	command := iacCommand + ""
-	for _, value := range req.Args {
-		command += " " + value
-	}
+	command := strings.Join(append([]string{iacCommand}, req.GetArgs()...), " ")
+
 	req.EnvVars[tfAutoApproveEnvName] = "true"
 
 	output, err := Run(endpoint, &Command{
 		Command:    command,
-		WorkingDir: req.WorkingDir,
-		EnvVars:    req.EnvVars,
+		WorkingDir: req.GetWorkingDir(),
+		EnvVars:    req.GetEnvVars(),
 		Token:      token,
 	})
 	if err != nil {
@@ -213,6 +220,7 @@ func (c *ClientServerEngine) Shutdown(req *tgengine.ShutdownRequest, stream tgen
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
