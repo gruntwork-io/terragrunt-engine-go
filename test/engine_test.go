@@ -190,7 +190,7 @@ func TestGRPCClient(t *testing.T) {
 
 	defer server.Stop()
 
-	// nolint:staticcheck
+	//nolint:staticcheck // deprecated grpc.Dial/WithInsecure are fine for a local test server
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	require.NoError(t, err, "Expected no error dialing GRPC server")
 
@@ -234,7 +234,7 @@ func TestInitResponseOneof(t *testing.T) {
 
 	defer server.Stop()
 
-	// nolint:staticcheck
+	//nolint:staticcheck // deprecated grpc.Dial/WithInsecure are fine for a local test server
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	require.NoError(t, err, "Expected no error dialing GRPC server")
 
@@ -311,7 +311,7 @@ func TestRunResponseOneof(t *testing.T) {
 
 	defer server.Stop()
 
-	// nolint:staticcheck
+	//nolint:staticcheck // deprecated grpc.Dial/WithInsecure are fine for a local test server
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	require.NoError(t, err, "Expected no error dialing GRPC server")
 
@@ -386,7 +386,7 @@ func TestShutdownResponseOneof(t *testing.T) {
 
 	defer server.Stop()
 
-	// nolint:staticcheck
+	//nolint:staticcheck // deprecated grpc.Dial/WithInsecure are fine for a local test server
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	require.NoError(t, err, "Expected no error dialing GRPC server")
 

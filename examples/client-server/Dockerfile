@@ -1,4 +1,4 @@
-FROM golang:1.26.0-bookworm AS builder
+FROM golang:1.27.0-bookworm AS builder
 
 # Copy the entire repository into the build context
 WORKDIR /build
