@@ -27,6 +27,19 @@ message InitRequest {
 
   // Environment variables as a map of string keys to string values.
   map<string, string> env_vars = 3;
+
+  // Identifies the flight this engine runs in. A flight is one Terragrunt
+  // invocation, such as one `terragrunt run --all`, and every engine process it
+  // starts gets the same ID. The ID is a UUIDv7 in canonical string form and is
+  // not secret, so engines can use it in file paths and logs. Empty when
+  // Terragrunt predates this field.
+  string flight_id = 4;
+
+  // 32 random bytes shared by every engine process in the flight, for secrets
+  // those processes share, such as a key for files they encrypt for each other.
+  // Never log it or pass it to a subprocess. Empty when Terragrunt predates
+  // this field.
+  bytes flight_token = 5;
 }
 
 message InitResponse {

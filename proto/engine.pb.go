@@ -84,7 +84,18 @@ type InitRequest struct {
 	// Working directory path.
 	WorkingDir string `protobuf:"bytes,2,opt,name=working_dir,json=workingDir,proto3" json:"working_dir,omitempty"`
 	// Environment variables as a map of string keys to string values.
-	EnvVars       map[string]string `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	EnvVars map[string]string `protobuf:"bytes,3,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Identifies the flight this engine runs in. A flight is one Terragrunt
+	// invocation, such as one `terragrunt run --all`, and every engine process it
+	// starts gets the same ID. The ID is a UUIDv7 in canonical string form and is
+	// not secret, so engines can use it in file paths and logs. Empty when
+	// Terragrunt predates this field.
+	FlightId string `protobuf:"bytes,4,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
+	// 32 random bytes shared by every engine process in the flight, for secrets
+	// those processes share, such as a key for files they encrypt for each other.
+	// Never log it or pass it to a subprocess. Empty when Terragrunt predates
+	// this field.
+	FlightToken   []byte `protobuf:"bytes,5,opt,name=flight_token,json=flightToken,proto3" json:"flight_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +147,20 @@ func (x *InitRequest) GetWorkingDir() string {
 func (x *InitRequest) GetEnvVars() map[string]string {
 	if x != nil {
 		return x.EnvVars
+	}
+	return nil
+}
+
+func (x *InitRequest) GetFlightId() string {
+	if x != nil {
+		return x.FlightId
+	}
+	return ""
+}
+
+func (x *InitRequest) GetFlightToken() []byte {
+	if x != nil {
+		return x.FlightToken
 	}
 	return nil
 }
@@ -828,12 +853,14 @@ var File_proto_engine_proto protoreflect.FileDescriptor
 
 const file_proto_engine_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/engine.proto\x12\x05proto\x1a\x19google/protobuf/any.proto\"\xa7\x02\n" +
+	"\x12proto/engine.proto\x12\x05proto\x1a\x19google/protobuf/any.proto\"\xe7\x02\n" +
 	"\vInitRequest\x120\n" +
 	"\x04meta\x18\x01 \x03(\v2\x1c.proto.InitRequest.MetaEntryR\x04meta\x12\x1f\n" +
 	"\vworking_dir\x18\x02 \x01(\tR\n" +
 	"workingDir\x12:\n" +
-	"\benv_vars\x18\x03 \x03(\v2\x1f.proto.InitRequest.EnvVarsEntryR\aenvVars\x1aM\n" +
+	"\benv_vars\x18\x03 \x03(\v2\x1f.proto.InitRequest.EnvVarsEntryR\aenvVars\x12\x1b\n" +
+	"\tflight_id\x18\x04 \x01(\tR\bflightId\x12!\n" +
+	"\fflight_token\x18\x05 \x01(\fR\vflightToken\x1aM\n" +
 	"\tMetaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
 	"\x05value\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\x05value:\x028\x01\x1a:\n" +
