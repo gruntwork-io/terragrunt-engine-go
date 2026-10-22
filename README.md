@@ -26,6 +26,7 @@ Implementations of the Terragrunt Engine include:
 
 - [terragrunt-engine-opentofu](https://github.com/gruntwork-io/terragrunt-engine-opentofu)
 - [terragrunt-engine-client-server](./examples/client-server)
+- [terragrunt-engine-flight-sync](./examples/flight-sync), which shares one credential across the engine processes of a run
 
 ## Example Engine Implementation
 

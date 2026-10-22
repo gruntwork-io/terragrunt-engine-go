@@ -16,4 +16,6 @@ mocks/
 .go-version
 terragrunt-engine-client
 terragrunt-engine-server
+terragrunt-engine-flight-sync
+flight-sync-auth
 
